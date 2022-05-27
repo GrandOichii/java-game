@@ -1,0 +1,24 @@
+{
+    "icon": "images/icon.png",
+    "player": "images/player.png",
+
+    "index:wall": "images/tiles/wall.png",
+    "index:floor": "images/tiles/floor.png",
+    "index:chests_sign": "images/tiles/sign.png",
+    "index:chest1": "images/tiles/chest.png",
+    "index:chest2": "images/tiles/chest.png",
+    "index:chest3": "images/tiles/chest.png",
+    "index:chest4": "images/tiles/chest.png",
+    "index:chest5": "images/tiles/chest.png",
+    "index:chest6": "images/tiles/chest.png",
+    "index:chest7": "images/tiles/chest.png",
+    "index:chest8": "images/tiles/chest.png",
+    "index:door": "images/tiles/door.png",
+    "index:button": "images/tiles/wall_with_button.png",
+    "index:secret_sign": "images/tiles/sign.png",
+    "index:portal1_floor": "images/tiles/floor.png",
+    "index:portal2_floor": "images/tiles/floor.png",
+    "index:portal1": "images/tiles/portal.png",
+    "index:portal2": "images/tiles/portal.png",
+    "index:filthy_man": "images/tiles/man.png"
+}
