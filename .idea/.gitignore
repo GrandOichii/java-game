@@ -2,9 +2,9 @@
 /shelf/
 /workspace.xml
 .DS_Store
-tools/tileset-splitter/tilesets/*
-tools/tileset-splitter/GUI/*
-tools/tileset-splitter/tiles/*
+tools/tileset-splitter/tilesets
+tools/tileset-splitter/GUI
+tools/tileset-splitter/tiles
 *.class
 *.png
 __pycache__
