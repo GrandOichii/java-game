@@ -1,0 +1,85 @@
+give_item {
+give __item_name
+log "You received an item from the gods."
+}
+
+open_wall1 {
+tset 18 19 index:floor
+tset 18 20 index:floor
+}
+
+open_wall2 {
+tset 19 19 index:floor
+tset 19 20 index:floor
+}
+
+open_wall {
+run open_wall1
+run open_wall2
+}
+
+open_wall_slow {
+sleep 500
+run open_wall1
+sleep 500
+run open_wall2
+sleep 500
+}
+
+spawned_macro {
+log "Welcome to the demo game"
+set spawned 1
+set opened_secret1 0
+set __item_name "rock"
+run give_item
+}
+
+read_sign {
+set temp "You look at the sign. It reads: "
+sadd temp sign_text
+log temp
+}
+
+open_chest1 {
+log "Chest1"
+}
+
+open_chest2 {
+log "Chest2"
+}
+
+open_chest3 {
+log "Chest3"
+}
+
+open_chest4 {
+log "Chest4"
+}
+
+open_chest5 {
+log "Chest5"
+}
+
+open_chest6 {
+log "Chest6"
+}
+
+open_chest7 {
+log "Chest7"
+}
+
+open_chest8 {
+log "Chest8"
+}
+
+open_secret1 {
+set opened_secret1 1
+run open_wall_slow
+}
+
+index_update {
+if opened_secret1 = 1 then run open_wall
+}
+
+if not set spawned then run spawned_macro
+run index_update

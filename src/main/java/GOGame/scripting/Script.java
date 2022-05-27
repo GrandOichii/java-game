@@ -12,8 +12,10 @@ import java.util.List;
 public class Script {
     private String text;
     private List<Command> commands;
+    private ScriptOverseer so;
     public Script(String text, ScriptOverseer so) throws Exception {
         this.text = text;
+        this.so = so;
         this.commands = new ArrayList<>();
 
         var lines = text.split("\n");
@@ -48,7 +50,7 @@ public class Script {
         return line.substring(0, index).trim();
     }
 
-    public void exec(ScriptOverseer so) throws ScriptException {
+    public void exec() throws ScriptException {
         for (var command : commands) {
             command.exec(so);
         }

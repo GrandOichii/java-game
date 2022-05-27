@@ -77,6 +77,6 @@ public class Room {
     public boolean hasLoadScript() { return this.loadScript != null; }
 
     public void executeLoadScript(ScriptOverseer so) throws ScriptException {
-        this.loadScript.exec(so);
+        this.loadScript.exec();
     }
 }

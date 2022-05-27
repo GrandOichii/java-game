@@ -4,6 +4,9 @@ import GOGame.Engine;
 import GOGame.Utility;
 import GOGame.exceptions.ScriptException;
 import GOGame.map.WTile;
+import GOGame.scripting.Script;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.googlecode.lanterna.SGR;
@@ -24,18 +27,50 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
+import jdk.jshell.execution.Util;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+
+class TileManager {
+    private final HashMap<String, CCTMessage> tiles = new HashMap<>();
+
+    public boolean has(String tileName) { return this.tiles.containsKey(tileName); }
+    public CCTMessage get(String tileName) { return this.tiles.get(tileName); }
+
+    public static TileManager load(File file) throws IOException {
+        var result = new TileManager();
+        var text = Utility.readFile(file);
+        ObjectMapper mapper = new ObjectMapper();
+        var data = mapper.readValue(text, new TypeReference<HashMap<String, HashMap<String, String>>>() {
+        });
+
+        var templates = data.get("templates");
+        var actualTemplates = new HashMap<String, CCTMessage>();
+        for (var key : templates.keySet()) {
+            var cct = new CCTMessage(templates.get(key));
+            actualTemplates.put(key, cct);
+        }
+
+        var tiles = data.get("tiles");
+        for (var tile : tiles.keySet()) {
+            var cct = actualTemplates.get(tiles.get(tile));
+            result.tiles.put(tile, cct);
+        }
+        return result;
+    }
+}
 
 public class TerminalWindow implements GOGame.GameWindow {
 //    CCT labels
-    private static final CCTMessage LOG_WINDOW_LABEL = new CCTMessage("${default-red}Logs");
-    private static final CCTMessage INFO_WINDOW_LABEL = new CCTMessage("${default-cyan}Player info");
+    private static final CCTMessage LOG_WINDOW_LABEL = new CCTMessage("${white-red}Logs");
+    private static final CCTMessage INFO_WINDOW_LABEL = new CCTMessage("${white-cyan}Player info");
     private static final CCTMessage PLAYER_NAME_LABEL = new CCTMessage("Name:");
     private static final CCTMessage PLAYER_CLASS_LABEL = new CCTMessage("Class:");
     private static final String TILE_CHAR_MAP_FILE = "charmap.json";
@@ -57,7 +92,7 @@ public class TerminalWindow implements GOGame.GameWindow {
     private TextGraphics graphics;
     private boolean running;
     private boolean gameRunning;
-    private final HashMap<String, CCTMessage> tileCCTMap = new HashMap<>();
+    private TileManager tileManager;
     private final static CCTMessage PLAYER_CCT = new CCTMessage("${green}@");
     private boolean selectLogList;
 
@@ -93,6 +128,7 @@ public class TerminalWindow implements GOGame.GameWindow {
 
         terminal.setCursorVisible(false);
         terminal.setVisible(true);
+
 
         this.running = true;
         while (this.running) {
@@ -168,13 +204,7 @@ public class TerminalWindow implements GOGame.GameWindow {
     }
 
     private void loadAssets(String assetsPath) throws IOException {
-        var text = Utility.readFile(Path.of(assetsPath, TILE_CHAR_MAP_FILE).toFile());
-        ObjectMapper mapper = new ObjectMapper();
-        HashMap<String, String> tileCharMap = mapper.readValue(text, new TypeReference<>() {
-        });
-        for (var key : tileCharMap.keySet()) {
-            tileCCTMap.put(key, new CCTMessage(tileCharMap.get(key)));
-        }
+        this.tileManager = TileManager.load(Path.of(assetsPath, TILE_CHAR_MAP_FILE).toFile());
     }
     
     private Window createWindow() {
@@ -247,8 +277,11 @@ public class TerminalWindow implements GOGame.GameWindow {
         createCharacterPanel.addComponent(new Label("Class:"));
         final ComboBox<String> classBox = new ComboBox<>();
         var classes = this.game.getClassTemplates();
-        for (int i = classes.length - 1; i >= 0; i--) {
-            classBox.addItem(classes[i].getName());
+//        for (int i = classes.length - 1; i >= 0; i--) {
+//            classBox.addItem(classes[i].getName());
+//        }
+        for (var pClass : classes) {
+            classBox.addItem(pClass.getName());
         }
         createCharacterPanel.addComponent(classBox);
 
@@ -266,12 +299,12 @@ public class TerminalWindow implements GOGame.GameWindow {
             var pClass = classes[index];
             try {
                 this.game.createAndLoadCharacter(name, pClass);
+                this.startGame();
             }
             catch (Exception ex) {
 //                TODO
-                return;
+                throw new RuntimeException(ex);
             }
-            this.startGame();
             window.close();
         }));
 
@@ -291,11 +324,18 @@ public class TerminalWindow implements GOGame.GameWindow {
         throw new RuntimeException(e);
     }
 
-    private void startGame() {
+    private void startGame() throws ScriptException {
 //        prepare the screen
         this.terminal.setCursorVisible(false);
 
         this.gameRunning = true;
+        try {
+            this.game.start();
+        } catch (ScriptException e) {
+            this.close(e);
+            return;
+        }
+
         while (gameRunning) {
 //            draw
             this.terminal.clearScreen();
@@ -355,8 +395,9 @@ public class TerminalWindow implements GOGame.GameWindow {
 
     private static final String OPEN_INVENTORY_KEY = "i";
     private static final String INTERACT_KEY = "e";
+    private static final String COMMANDS_KEY = "~";
 
-    private boolean handleInput(KeyStroke key) {
+    private boolean handleInput(KeyStroke key) throws ScriptException {
         var k = stringKey(key);
         if (k == null) {
             return false;
@@ -373,12 +414,102 @@ public class TerminalWindow implements GOGame.GameWindow {
             case INTERACT_KEY:
                 this.interact();
                 return false;
+            case COMMANDS_KEY:
+                this.enterConsoleCommandMode();
+                return false;
             case "q":
 //                quit (DEBUG)
                 gameRunning = false;
                 return false;
         }
         return false;
+    }
+
+    private void enterConsoleCommandMode() {
+        final var allowedCharacters = new String[]{"_", " ", "."};
+        final int wHeight = infoWindowHeight / 2;
+        final int wWidth = infoWindowWidth;
+        final var y = wHeight + 1;
+        final var x = 2 * tileWindowWidth + 2;
+        final var commandY = infoWindowHeight - 2;
+        final var commandX = x + 3;
+
+        var line = new ArrayList<String>();
+        int cursor = 0;
+        final int maxLength = wWidth * 2 - 5;
+        final var prevLines = new ArrayList<String>();
+
+        while (true) {
+//            draw
+            graphics.drawRectangle(new TerminalPosition(x, y), new TerminalSize(wWidth * 2, wHeight), '*');
+            TerminalUtility.putAt(terminal, x + 1, y, "Command window y:" + game.getMap().getPlayerY() + " x: " + game.getMap().getPlayerX(), "red");
+            TerminalUtility.putAt(terminal, commandX - 2, commandY, "> ", "cyan");
+            terminal.enableSGR(SGR.UNDERLINE);
+            terminal.setCursorPosition(commandX, commandY);
+            terminal.putString(" ".repeat(maxLength));
+            TerminalUtility.putAt(terminal, commandX, commandY, String.join("", line));
+            terminal.disableSGR(SGR.UNDERLINE);
+            TerminalUtility.putAt(terminal, commandX + cursor, commandY, " ", "white-cyan");
+            terminal.flush();
+//            handle input
+            var key = this.terminal.readInput();
+//            check if escape
+            if (key.getKeyType() == KeyType.Escape) {
+                break;
+            }
+//            check if arrow keys
+            if (key.getKeyType() == KeyType.ArrowLeft) {
+                cursor--;
+                if (cursor < 0) {
+                    cursor = 0;
+                }
+                continue;
+            }
+            if (key.getKeyType() == KeyType.ArrowRight) {
+                cursor++;
+                if (cursor > line.size()) {
+                    cursor = line.size();
+                }
+                continue;
+            }
+//            check if backspace
+            if (key.getKeyType() == KeyType.Backspace) {
+                if (cursor == 0) {
+                    continue;
+                }
+                line.remove(cursor-1);
+                cursor--;
+                continue;
+            }
+//            check if ENTER
+            if (key.getKeyType() == KeyType.Enter) {
+                var l = String.join("", line);
+                try {
+                    new Script(l, game.getSO()).exec();
+                } catch (Exception e) {
+                    TerminalUtility.putAt(terminal, commandX-2, commandY+1, "Failed to execute line", "white-red");
+                    terminal.flush();
+                    terminal.readInput();
+                    continue;
+                }
+//                executed the command
+                cursor = 0;
+                prevLines.add(String.join("", line));
+                line = new ArrayList<>();
+                this.draw();
+                continue;
+            }
+//            check if is character key
+            if (key.getKeyType() == KeyType.Character) {
+                if (line.size() == maxLength) {
+                    continue;
+                }
+                var ch = key.getCharacter().toString();
+                line.add(cursor, ch);
+                cursor++;
+                continue;
+            }
+        }
     }
 
     private void draw() {
@@ -438,23 +569,32 @@ public class TerminalWindow implements GOGame.GameWindow {
         this.selectLogList = false;
     }
 
+    private final HashSet<String> unknownTiles = new HashSet<>();
+
     private void drawTiles(List<WTile> tiles, boolean reverseColor) {
         var roomName = this.game.getMap().getCurrentRoom().getName();
         for (var tile : tiles) {
             var tileName = roomName + ":" + tile.getName();
-            if (!tileCCTMap.containsKey(tileName)) {
-                TerminalUtility.putAt(terminal, tile.getX(), tile.getY(), "?", "black-white");
-                continue;
-            }
-            var cct = tileCCTMap.get(tileName);
             var y = TILE_WINDOW_OFFSET_Y + tile.getY();
             var x = TILE_WINDOW_OFFSET_X + 2 * tile.getX();
+            if (!tileManager.has(tileName)) {
+                TerminalUtility.putAt(terminal, x, y, "?", "black-white");
+                if (!unknownTiles.contains(tileName)) {
+                    unknownTiles.add(tileName);
+                    System.out.println("Unknown tile: " + tileName);
+                }
+                continue;
+            }
+            var cct = tileManager.get(tileName);
             cct.drawLine(terminal, x, y, reverseColor);
         }
     }
 
     private void openInventory() {
-//        TODO
+        var lines = game.getPlayer().getInventory().getAsPrettyList();
+        for (var line : lines) {
+            System.out.println(line);
+        }
     }
 
     private void interact() {

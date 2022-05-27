@@ -1,0 +1,75 @@
+
+I really like the souls games, so wanted to make something like it. The curses engine that I'm using can't really support action RPGs, so this will be a turn-based RPG. Will try to implement the combat from the game neo scavenger. Since the souls games are metroidvania-likes, and I really like those kinds of games, I will try something like that. 
+The core of the game is as follows:
+There is a main hub. Here are all the main NPC's, merchants (that you find by exploring the map) and the elevator, which requires 4 keys. Each of the keys can be found in the 4 separate areas of the game. Areas:
+~ The Forest - the basic starting area. Best to start here if you are a beginner.
+~ The Castle - the second easiest area. Has a lot of items.
+~ The Caves - the darkest area. Reqiures the player to learn the light mechanics of the game. Second hardest area. 
+~ The Volcanic Pit - the hardest area. Expert players can start here, however it will be pretty hard.
+A beginner might consider following this route: The Forest, The Castle, The Caves, The Volcanic Pit.
+There last area (accessed by finding all the keys) is The Void. The hardest area of the lot, requires late game gear. Here lies the final boss.
+
+The player has Attributes. Each one can be increased upon levelling up. 
+Minimum attribute value: 1
+Maximum attribute value: 99
+Player has the following Attributes:
+~ VIT - vitality. Governs player's health.
+~ STR - strength. Governs player's damage by melee weapons. Bigger weapons require bigger STR.
+~ AGI - agility. Governs player's range of ranged weapons and stamina stat. Better armor requires bigger STR.
+~ INT - intelligence. Govern's player's spell damage. Better spells require bigger INT.
+~ WIS - wisdom. Governs the amount of mana the player has.
+~ LUC - luck. Governs player's chance to dodge attacks, loot drops and other events.
+
+Player has the following stats:
+~ MHealth - maximum amount of health the player can have. Is governed by the VIT attribute.
+~ CHealth - current amount of health the player has. Can't be less than zero and more than MHealth.
+~ MMana - maximum amount of mana the player can have. Is governed by the WIS attribute.
+~ CMana - current amount of mana the player has. Can't be less than zero and more than MMana.
+~ Defence - defence of the player. Determines how much damage is negated by attacks. !Attacks always deal at least 1 damage!
+~ Stamina - stamina of the player. The less stamina a player has, the more easily they can fall during fights.
+
+Player has the following equipment slots:
+~ Head - the head of the player. Can equip helmets, 
+~ Torso - the torso of the player. Can equip 
+~ Legs - the legs of the player. Can equip leggins,
+~ 2 arms - the arms of the player. Can equip melee weapons, ranged weapons, shields, 
+~ 2 fingers - the fingers of the player. Can equip rings.
+
+- magic -
+The player can use magic to aid themselves in combat/non-combat situations. Spells can be learned by reading spellbooks. There are 2 different kinds of magic:
+~ Normal magic - uses mana.
+~ Blood magic - uses blood splats on ground as resource. Mostly offensive spells.
+
+- areas -
+-- Hub --
+. Here the player will spawn after each death/game load. The lower deck consists of 6 rooms and a ladder.
+. Each of the rooms houses a separate hero
+. Two of the rooms will have already been opened when the player spawns. Both heroes, that lies in that room won't appear. The second one will appear only after the player's first death.
+. Upon defeating 2 area bosses, another hero will spawn. His door won't open at first, and the player will have to figure out how to free him (if they want to).
+-- The Castle --
+
+- mechanics -
+. Heroes spawn at their beds after each death, thus forcing them to rest. When ANYONE rests at their bed, all the enemies (except bosses) will be respawned. This means that all the enemies can randomly respawn (but rarely).
+. Player will find various shortcuts throughout the game so that they will not have to kill all the enemies to slain the bosses of the area
+. Can sell any sellable item to any NPC
+. Can learn spells by reading spellbooks
+. Burn the webs to find more locations
+. More spiders around the webs
+. Player can craft items at crafting benches
+. Enemies will attack the player once they are within their range
+. Enemies don't move around, player doesn't have to fight them all. Upon dying all enemies respawn
+. Enemies drop ingredients, some enemies drop keys that are required to pass to other areas
+. Recipies available for cooking are lit in light gray, recepies unavailable for cooking are lit dark gray
+. Player will get a ring from a boss that will allow them to walk on lava undamaged
+
+- other notes -
+. The player will meet the First Hero as a late-game boss, for he was driven with madness after venturing out into The Caves.
+. The second hero knew the First, thus he is aware of the mechanics of the world. He wasn't able to defeat any of the 4 bosses, this is why he refuses to fight any of the enemies, and only gathers resources, that he will happily sell to the player.
+. All enemies have an enemy code - that way the game remembers which enemies the player has killed. Upon resting at the main hub area the slice of cleared enemy codes is emptied.
+. Format for recepies: <item code>: [<item code>,]. Using it raw will be hard, so will have to right a pyqt app to generate items and their recepies.
+. An NPS will be standing and will ask the player if he wants to find a shortcut. He will ask for a fee. If the player doesn't pay the fee and stands near the button that activates the secret door, the NPC will attack him.
+. There will be a hard encounter in the castle. If the player dies, he will be locked up in a cell.
+. The hero that spawns before the player
+. Player has the option to enter the castle through the sewers
+
+!!! CHANGE HOW BROKEN ALT WORKS !!!

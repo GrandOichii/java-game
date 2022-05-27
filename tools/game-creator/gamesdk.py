@@ -41,9 +41,9 @@ REQUIRED_FILES = [
     MAP_DATA_FILE,
     CLASSES_FILE,
     GAME_INFO_FILE,
-    ENEMIES_FILE,
-    ITEMS_FILE,
-    CONTAINERS_FILE
+    # ENEMIES_FILE,
+    # ITEMS_FILE,
+    # CONTAINERS_FILE
 ]
 
 class CheckError:
@@ -152,10 +152,9 @@ class ClassesData:
         self.classes = {'Warrior':{}}
 
     def to_json(self):
-        # MAY NOT WORK CORRECTLY
         result = []
-        for name, info in enumerate(self.classes):
-            ob = dict(info)
+        for name, c in enumerate(self.classes):
+            ob = {}
             ob['name'] = name
             result += [ob]
         return result

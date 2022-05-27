@@ -1,14 +1,23 @@
 package GOGame.player;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import GOGame.Engine;
+import GOGame.items.Inventory;
+import GOGame.items.Item;
 
 public class Player {
-    private String name;
-    private String className;
-    public Player(String name, PlayerClass pClass) {
+    private final String name;
+    private final String className;
+    private final Inventory inventory;
+
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    public Player(Engine engine, String name, PlayerClass pClass) {
 //        TODO
         this.name = name;
         this.className = pClass.getName();
+        this.inventory = new Inventory(engine);
     }
 
     public String getName() {
@@ -17,5 +26,9 @@ public class Player {
 
     public String getClassName() {
         return className;
+    }
+
+    public void addItem(Item item) {
+        this.inventory.addItem(item);
     }
 }

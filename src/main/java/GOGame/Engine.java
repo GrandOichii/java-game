@@ -3,6 +3,7 @@ package GOGame;
 import GOGame.exceptions.ScriptException;
 import GOGame.items.GameContainer;
 import GOGame.items.Item;
+import GOGame.items.ItemManager;
 import GOGame.map.GameMap;
 import GOGame.map.RoomLocation;
 import GOGame.map.WTile;
@@ -56,7 +57,7 @@ public class Engine {
             MAP_DATA_FILE,
             CLASSES_FILE,
             GAME_INFO_FILE,
-//            ITEMS_FILE,
+            ITEMS_FILE,
 //            CONTAINERS_FILE
     };
     private final GameMap map;
@@ -75,12 +76,21 @@ public class Engine {
 
     public GameInfo getGameInfo() { return this.gi; }
     private final PlayerClass[] classTemplates;
-    private final HashMap<String, Item> itemMap;
+    private final ItemManager itemManager;
+
+    public ItemManager getItemManager() {
+        return itemManager;
+    }
+
     private final HashMap<String, GameContainer> containerMap;
     private final String path;
     private GameWindow w;
 
     private ScriptOverseer so;
+
+    public ScriptOverseer getSO() {
+        return so;
+    }
 
     public void setGameWindow(GameWindow w) { this.w = w; }
     public GameWindow getGameWindow() { return this.w; }
@@ -98,7 +108,7 @@ public class Engine {
 //        load the game info
         this.gi = GameInfo.load(fileMap.get(GAME_INFO_FILE));
 //        load the items
-        this.itemMap = Item.loadItems(fileMap.get(ITEMS_FILE));
+        this.itemManager = Item.loadItems(fileMap.get(ITEMS_FILE));
 //        load the containers
         this.containerMap = GameContainer.loadContainers(fileMap.get(CONTAINERS_FILE));
     }
@@ -136,7 +146,7 @@ public class Engine {
     public PlayerClass[] getClassTemplates() { return this.classTemplates; }
 
     public void createAndLoadCharacter(String name, PlayerClass pClass) {
-        this.player = new Player(name, pClass);
+        this.player = new Player(this, name, pClass);
         this.save();
         var saveFile = getCurrentSaveFile();
         loadCharacter(saveFile);
@@ -161,12 +171,21 @@ public class Engine {
         var pX = map.getPlayerX();
         var tile = map.getCurrentRoom().getTiles()[pY][pX];
         if (tile.hasStepScript()) {
-            tile.getSS().exec(so);
+            tile.getSS().exec();
         }
     }
 
-    public boolean movePlayer(String direction) {
-        return this.map.movePlayer(direction);
+    public boolean movePlayer(String direction) throws ScriptException {
+        var moved = this.map.movePlayer(direction);
+        return moved;
+//        if (!moved) {
+//            return false;
+//        }
+//        var tile = map.getCurrentRoom().getTiles()[map.getPlayerX()][map.getPlayerX()];
+////        if (tile.hasStepScript()) {
+////            tile.getSS().exec(so);
+////        }
+//        return false;
     }
 
     private int windowWidth = -1;
@@ -249,9 +268,10 @@ public class Engine {
     }
 
     public void travelTo(RoomLocation loc) throws ScriptException {
+        var prevRoom = map.getCurrentRoom();
         map.travelTo(loc);
         var room = map.getCurrentRoom();
-        if (room.hasLoadScript()) {
+        if (prevRoom != room && room.hasLoadScript()) {
             room.executeLoadScript(so);
         }
     }
@@ -260,12 +280,19 @@ public class Engine {
         var dirs = DIRECTION_MAP.get(direction);
         var tile = map.getAt(dirs);
         if (tile.hasInteractScript()) {
-            tile.getIS().exec(so);
+            tile.getIS().exec();
         }
     }
 
     public void addToLog(String message) {
         logMessages.add(message);
         this.w.onLogUpdate(message);
+    }
+
+    public void start() throws ScriptException {
+        var room = this.map.getCurrentRoom();
+        if (room.hasLoadScript()) {
+            room.executeLoadScript(so);
+        }
     }
 }

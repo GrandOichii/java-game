@@ -7,8 +7,8 @@ def do():
         return
     resultfile = sys.argv[3]
 
-    fg = Image.open(sys.argv[1])
-    bg = Image.open(sys.argv[2])
+    fg = Image.open(sys.argv[1]).convert('RGBA')
+    bg = Image.open(sys.argv[2]).convert('RGBA')
     bg.paste(fg, (0, 0), fg)
     bg.save(resultfile)
 

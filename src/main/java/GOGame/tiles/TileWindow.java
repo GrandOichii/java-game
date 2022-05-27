@@ -3,9 +3,9 @@ package GOGame.tiles;
 import GOGame.Engine;
 import GOGame.GameWindow;
 import GOGame.exceptions.ScriptException;
-import com.googlecode.lanterna.input.KeyStroke;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
@@ -14,8 +14,8 @@ import java.util.HashMap;
 
 public class TileWindow extends JFrame implements GameWindow, KeyListener {
     private static final int TILE_COUNT_X = 21;
-    private static final int TILE_COUNT_Y = 15;
-    private Engine e;
+    private static final int TILE_COUNT_Y = 11;
+    private Engine game;
     private TilePanel tilesPanel;
     private boolean interactState = false;
 
@@ -32,16 +32,19 @@ public class TileWindow extends JFrame implements GameWindow, KeyListener {
     }
 
     @Override
-    public void start(Engine engine, String assetsPath) throws IOException {
+    public void start(Engine engine, String assetsPath) throws IOException, ScriptException {
         addKeyListener(this);
 
-        this.e = engine;
+        this.game = engine;
         var size = this.tilesPanel.getPreferredSize();
-        e.setWindowSize(TILE_COUNT_X, TILE_COUNT_Y);
-        this.tilesPanel.setEngine(e);
-        var tileSet = TileSet.load(assetsPath);
+        game.setWindowSize(TILE_COUNT_X, TILE_COUNT_Y);
+        this.tilesPanel.setEngine(game);
+        var tileSet = TileSet.load(assetsPath, TilePanel.TILE_WIDTH, TilePanel.TILE_HEIGHT);
         this.tilesPanel.setTileSet(tileSet);
-        this.setIconImage(tileSet.getImageMap().get("icon"));
+        this.setIconImage(tileSet.get("icon"));
+
+        this.game.start();
+
         this.setVisible(true);
     }
 
@@ -111,7 +114,7 @@ public class TileWindow extends JFrame implements GameWindow, KeyListener {
             interactState = false;
             if (DIRECTION_MAP.containsKey(key)) {
                 try {
-                    this.e.interactAt(DIRECTION_MAP.get(key));
+                    this.game.interactAt(DIRECTION_MAP.get(key));
                 } catch (ScriptException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -120,28 +123,43 @@ public class TileWindow extends JFrame implements GameWindow, KeyListener {
             return;
         }
         if (DIRECTION_MAP.containsKey(key)) {
-            var moved = this.e.movePlayer(DIRECTION_MAP.get(key));
+            try {
+                var moved = this.game.movePlayer(DIRECTION_MAP.get(key));
+                if (!moved) {
+                    return;
+                }
+                this.game.update();
+            } catch (ScriptException ex) {
+                throw new RuntimeException(ex);
+            }
             this.tilesPanel.repaint();
             return;
         }
         switch (key) {
         case "e":
             this.interact();
+        case "+":
+
         }
     }
 
-    private void draw() {
+    private void drawTiles() {
         var size = this.tilesPanel.getPreferredSize();
         this.tilesPanel.paintImmediately(0, 0, size.width, size.height);
     }
 
+    private void draw() {
+        this.drawTiles();
+    }
+
     private void interact() {
-        var tiles = this.e.getAdjacentInteractableTiles();
+        var tiles = this.game.getAdjacentInteractableTiles();
         if (tiles.size() == 0) {
 //            TODO
             return;
         }
-//        TODO
+        tilesPanel.highlightTiles(tiles, Color.lightGray);
+        this.drawTiles();
         this.interactState = true;
     }
 }

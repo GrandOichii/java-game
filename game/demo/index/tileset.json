@@ -1,0 +1,133 @@
+{
+    "0": {
+        "displayName": "Wall",
+        "name": "wall",
+        "passable": false,
+        "transparent": false
+    },
+    "1": {
+        "displayName": "Floor",
+        "name": "floor",
+        "passable": true,
+        "transparent": true
+    },
+    "2": {
+        "displayName": "Sign",
+        "interactScript": "scripts/chests_sign_read.script",
+        "name": "chests_sign",
+        "passable": false,
+        "transparent": true
+    },
+    "3": {
+        "displayName": "Chest",
+        "interactScript": "scripts/chest2_interact.script",
+        "name": "chest1",
+        "passable": false,
+        "transparent": true
+    },
+    "4": {
+        "displayName": "Chest",
+        "interactScript": "scripts/chest2_interact.script",
+        "name": "chest2",
+        "passable": false,
+        "transparent": true
+    },
+    "5": {
+        "displayName": "Chest",
+        "interactScript": "scripts/chest3_interact.script",
+        "name": "chest3",
+        "passable": false,
+        "transparent": true
+    },
+    "6": {
+        "displayName": "Chest",
+        "interactScript": "scripts/chest4_interact.script",
+        "name": "chest4",
+        "passable": false,
+        "transparent": true
+    },
+    "7": {
+        "displayName": "Chest",
+        "interactScript": "scripts/chest5_interact.script",
+        "name": "chest5",
+        "passable": false,
+        "transparent": true
+    },
+    "8": {
+        "displayName": "Door",
+        "interactScript": "scripts/door_interact.script",
+        "name": "door",
+        "passable": false,
+        "transparent": false
+    },
+    "9": {
+        "displayName": "Wall with a button",
+        "interactScript": "scripts/button_interact.script",
+        "name": "button",
+        "passable": false,
+        "transparent": false
+    },
+    "a": {
+        "displayName": "Chest",
+        "interactScript": "scripts/chest6_interact.script",
+        "name": "chest6",
+        "passable": false,
+        "transparent": true
+    },
+    "b": {
+        "displayName": "Chest",
+        "interactScript": "scripts/chest7_interact.script",
+        "name": "chest7",
+        "passable": false,
+        "transparent": true
+    },
+    "c": {
+        "displayName": "Chest",
+        "interactScript": "scripts/chest8_interact.script",
+        "name": "chest8",
+        "passable": false,
+        "transparent": true
+    },
+    "d": {
+        "displayName": "Sign",
+        "interactScript": "scripts/secret_sign_interact.script",
+        "name": "secret_sign",
+        "passable": false,
+        "transparent": true
+    },
+    "e": {
+        "displayName": "Portal",
+        "name": "portal1",
+        "passable": true,
+        "stepScript": "scripts/portal1_step.script",
+        "transparent": true
+    },
+    "f": {
+        "displayName": "Portal",
+        "name": "portal2",
+        "passable": true,
+        "stepScript": "scripts/portal2_step.script",
+        "transparent": true
+    },
+    "g": {
+        "displayName": "Floor",
+        "name": "portal1_floor",
+        "passable": true,
+        "transparent": true,
+        "warpcode": "near_portal1"
+    },
+    "h": {
+        "displayName": "Floor",
+        "name": "portal2_floor",
+        "passable": true,
+        "transparent": true,
+        "warpcode": "near_portal2"
+    },
+    "i": {
+        "displayName": "Filthy man",
+        "interactScript": "scripts/filthy_man_talk.script",
+        "name": "filthy_man",
+        "passable": false,
+        "transparent": true
+    }
+}

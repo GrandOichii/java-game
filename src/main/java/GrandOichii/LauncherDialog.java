@@ -78,9 +78,15 @@ public class LauncherDialog extends JDialog {
     private JTextField assetsField;
     private int windowIndex = 0;
     private Engine game;
+    private boolean ok;
+
+    public boolean isOk() {
+        return ok;
+    }
 
     public LauncherDialog() {
         super();
+        this.ok = false;
         this.initUI();
         try {
             this.loadConfig();
@@ -238,6 +244,7 @@ public class LauncherDialog extends JDialog {
 //        open the window
         var window = windows[wi];
         game.setGameWindow(window);
+        this.ok = true;
         this.dispose();
     }
 

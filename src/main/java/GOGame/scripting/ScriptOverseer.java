@@ -19,8 +19,10 @@ public class ScriptOverseer {
     private Engine e;
 
     private static final String MESSAGE_BOX_RESULT_NAME = "_mbresult";
-    private boolean equal(Object o1, Object o2) {
-        return true;
+    private boolean equal(Object o1, Object o2) throws ScriptException {
+        var v1 = parseArg(o1);
+        var v2 = parseArg(o2);
+        return v1.equals(v2);
     }
 
     public ScriptOverseer(Engine engine) {
@@ -37,8 +39,10 @@ public class ScriptOverseer {
                 if (args.length != reqCount) {
                     throw new ScriptArgumentsException("set", reqCount, args.length);
                 }
-//                var key = (String)args[0];
-                return this.getSO().vars.containsKey((String) args[0]);
+                var vars = this.getSO().vars;
+                var key = (String) args[1];
+                var contains = vars.containsKey(key);
+                return contains;
             }
         });
 //        equals evaluation
@@ -66,7 +70,7 @@ public class ScriptOverseer {
                     throw new ScriptException("no macro with name " + macroName);
                 }
                 var macro = so.macros.get(macroName);
-                macro.exec(so);
+                macro.exec();
             }
         });
         funcMap.put("log", new Function() {
@@ -74,10 +78,11 @@ public class ScriptOverseer {
             public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
                 var reqCount = 1;
                 if (args.length != reqCount) {
-                    throw new ScriptArgumentsException("run", reqCount, args.length);
+                    throw new ScriptArgumentsException("log", reqCount, args.length);
                 }
                 var message = so.toString(args[0]);
                 so.e.addToLog(message);
+                System.out.println(message);
             }
         });
         funcMap.put("warp", new Function() {
@@ -85,7 +90,7 @@ public class ScriptOverseer {
             public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
                 var reqCount = 1;
                 if (args.length != reqCount) {
-                    throw new ScriptArgumentsException("run", reqCount, args.length);
+                    throw new ScriptArgumentsException("warp", reqCount, args.length);
                 }
                 var warpCode = (String) args[0];
                 var warpMap = so.e.getMap().getWarpMap();
@@ -96,12 +101,25 @@ public class ScriptOverseer {
                 so.e.travelTo(loc);
             }
         });
+        funcMap.put("give", new Function() {
+            @Override
+            public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
+                var reqCount = 1;
+                if (args.length != reqCount) {
+                    throw new ScriptArgumentsException("give", reqCount, args.length);
+                }
+                var itemName = so.toString(args[0]);
+                System.out.println(itemName);
+                var item = e.getItemManager().get(itemName);
+                e.getPlayer().addItem(item);
+            }
+        });
         funcMap.put("tset", new Function() {
             @Override
             public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
                 var reqCount = 3;
                 if (args.length != reqCount) {
-                    throw new ScriptArgumentsException("run", reqCount, args.length);
+                    throw new ScriptArgumentsException("tset", reqCount, args.length);
                 }
                 var y = (Integer) args[0];
                 var x = (Integer) args[1];
@@ -130,7 +148,7 @@ public class ScriptOverseer {
             public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
                 var reqCount = 1;
                 if (args.length != reqCount) {
-                    throw new ScriptArgumentsException("run", reqCount, args.length);
+                    throw new ScriptArgumentsException("sleep", reqCount, args.length);
                 }
                 var time = (Integer) args[0];
                 so.e.getGameWindow().sleep(time);
@@ -141,10 +159,22 @@ public class ScriptOverseer {
             public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
                 var reqCount = 2;
                 if (args.length != reqCount) {
-                    throw new ScriptArgumentsException("run", reqCount, args.length);
+                    throw new ScriptArgumentsException("set", reqCount, args.length);
                 }
                 var argName = (String) args[0];
                 so.vars.put(argName, parseArg(args[1]));
+            }
+        });
+        funcMap.put("sadd", new Function() {
+            @Override
+            public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
+                var reqCount = 2;
+                if (args.length != reqCount) {
+                    throw new ScriptArgumentsException("sadd", reqCount, args.length);
+                }
+                var add = so.toString(args[1]);
+                var key = (String) args[0];
+                so.vars.put(key, so.vars.get(key) + add);
             }
         });
         funcMap.put("mb", new Function() {
@@ -152,7 +182,7 @@ public class ScriptOverseer {
             public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
                 var reqCount = 2;
                 if (args.length != reqCount) {
-                    throw new ScriptArgumentsException("run", reqCount, args.length);
+                    throw new ScriptArgumentsException("mb", reqCount, args.length);
                 }
                 var text = so.toString(args[0]);
                 var choices = so.toString(args[1]).split("_");
@@ -271,7 +301,7 @@ public class ScriptOverseer {
                 arguments[i] = args[i];
             }
         }
-        var result = new Command(f, arguments);
+        var result = new Command(f, arguments, line);
         return result;
     }
 

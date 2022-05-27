@@ -35,6 +35,7 @@ public class TileSet {
                 ss = so.loadScript(tile.getStepScriptPath());
             }
             tile.setScripts(ss, is);
+//            System.out.println(tile.getName() + " " + ss);
         }
         return result;
     }

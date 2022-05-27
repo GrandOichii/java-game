@@ -6,9 +6,12 @@ public class Command {
     private final Function f;
     private final Object[] args;
 
-    public Command(Function f, Object[] args) {
+    private final String line;
+
+    public Command(Function f, Object[] args, String line) {
         this.f = f;
         this.args = args;
+        this.line = line;
     }
 
     public void exec(ScriptOverseer so) throws ScriptException {
