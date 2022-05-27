@@ -430,19 +430,26 @@ class MainAppWindow(QMainWindow):
         w.show()        
 
     def item_double_clicked(self, e):
-        # TO-DO
-        pass
+        i = self.item_names_list.selectedIndexes()[0].row()
+        item = self.game.items[i]
+        w = ItemEditorWindow(self, item)
+        item, ok = w.edit()
+        if not ok:
+            return
+        self.game.items[i] = item
+        sel = self.item_names_list.selectedItems()[0]
+        sel.setText(item.name)
 
     def container_double_clicked(self, e):
-        # TO-DO
+        # TODO
         pass
 
     def enemy_double_clicked(self, e):
-        # TO-DO
+        # TODO
         pass
     
     def class_double_clicked(self, e):
-        # TO-DO
+        # TODO
         pass
 
     def create_new_game_action(self):
@@ -473,6 +480,10 @@ class MainAppWindow(QMainWindow):
         self.save_dir = os.path.dirname(d)
         self.clear_game()
         self.game = game
+        # items
+        for item in self.game.items:
+            self.item_names_list.addItem(item.name)
+        # rooms
         for room in self.game.rooms:
             w = RoomEditorWindow(self, room.name)
             self.room_names_list.addItem(room.name)
@@ -489,7 +500,6 @@ class MainAppWindow(QMainWindow):
         self.save_game()
 
     def save_game_as_action(self):
-        # TO-DO
         if not self.check_game():
             return
         dir = util.prompt_directory(self)
@@ -500,7 +510,7 @@ class MainAppWindow(QMainWindow):
         self.save_game()
 
     def edit_classes_action(self):
-        # TO-DO
+        # TODO
         # util.show_message_box('CAN\'T EDIT CLASSES')
         if self.game is None:
             return
@@ -568,32 +578,39 @@ class MainAppWindow(QMainWindow):
         self.item_names_list.addItem(item.name)
 
     def delete_item_action(self):
-        # TO-DO
-        pass
+        si = self.item_names_list.selectedIndexes()
+        if len(si) != 1:
+            return
+        i = si[0].row()
+        item = self.game.items[i]
+        if util.show_message_box(f'Are you sure you want to delete item {item.name}?', QMessageBox.No | QMessageBox.Yes) == QMessageBox.No:
+            return
+        self.game.items.remove(item)
+        self.item_names_list.takeItem(i)
 
     def new_container_action(self):
-        # TO-DO
+        # TODO
         pass
 
     def delete_container_action(self):
-        # TO-DO
+        # TODO
         pass
 
     def new_enemy_action(self):
-        # TO-DO
+        # TODO
         pass
 
     def delete_enemy_action(self):
-        # TO-DO
+        # TODO
         pass
 
     def new_class_action(self):
-        # TO-DO
+        # TODO
         self.edit_classes_action()
         pass
 
     def delete_class_action(self):
-        # TO-DO
+        # TODO
         pass
 
 GAME_INFO_NAME_LABEL_TEXT = 'Game name:'

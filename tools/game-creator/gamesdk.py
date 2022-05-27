@@ -41,8 +41,8 @@ REQUIRED_FILES = [
     MAP_DATA_FILE,
     CLASSES_FILE,
     GAME_INFO_FILE,
+    ITEMS_FILE,
     # ENEMIES_FILE,
-    # ITEMS_FILE,
     # CONTAINERS_FILE
 ]
 
@@ -90,7 +90,7 @@ def is_good_script(script: str) -> CheckError:
         words = line.split(' ')
         cname = words[0]
         if cname == 'if':
-            # TO-DO
+            # TODO
             continue
         if line.count('{') != 0:
             continue
@@ -182,15 +182,25 @@ class ScriptData:
         with open(os.path.join(to, self.name + SCRIPT_FILE_FORMAT), 'w') as f:
             f.write(self.text)
 
+MAX_DAMAGE = 100
+MAX_RANGE = 20
+
+MAX_ATTRIBUTE = 50
+
 ITEM_TYPES = [
     'basic',
-    'weapon',
+    'melee weapon',
+    'ranged weapon',
     'ammo'
 ]
 
-WEAPON_TYPES = [
-    'melee',
-    'ranged'
+SLOTS = [
+    'ARM',
+    'ARMS',
+    'FINGER',
+    'HEAD',
+    'TORSO',
+    'LEGS'
 ]
 
 AMMO_TYPES = [
@@ -198,33 +208,79 @@ AMMO_TYPES = [
     'bolt'
 ]
 
-class WeaponData:
-    def __init__(self) -> None:
-        self.weapon_type = ''
-        self.min_damage = 0
-        self.max_damage = 0
-        self.range = 0
+DAMAGE_TYPES = [
+    'PHYSICAL'
+]
 
-    def to_json(self) -> dict:
-        # TO-DO
-        pass
+ITEM_KEYS = ['name', 'displayName', 'description', 'damageType', 'minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot']
+
+# item_templates = json.loads(open('template-items.json', 'r').read())
+ITEM_TYPE_KEYS = {
+    # 'basic': list(item_templates['basic'][0].keys()),
+    # 'ammo': list(item_templates['ammo'][0].keys()),
+    # 'melee weapon': list(item_templates['weapons']['melee'][0].keys()),
+    # 'ranged weapon': list(item_templates['weapons']['ranged'][0].keys())
+    'basic': ['name', 'displayName', 'description'],
+    'ammo': ['name', 'displayName', 'description', 'ammoType', 'damageType', 'damage'],
+    'melee weapon': ['name', 'displayName', 'description', 'damageType', 'minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot'],
+    'ranged weapon': ['name', 'displayName', 'description', 'minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot', 'ammoType']
+}
+
+REQUIREMENT_KEYS = [
+    'STR',
+    'AGI',
+    'INT'
+]
+
+NUMBER_KEYS = [
+    'minDamage',
+    'maxDamage',
+    'damage',
+    'range'
+]
 
 class ItemData:
     def __init__(self):
-        self.name = ''
-        self.display_name = ''
-        self.selected_type = 'basic'
-        self.equip_data = {}
-        self.weapon_data = {}
-        self.ammo_type = ''
+        self.selected_type: str = ''
 
-    def load(data: dict) -> 'ItemData':
-        # TO-DO
-        pass
+        self.name: str = ''
+        self.ammoType: str = ''
+        self.displayName: str = ''
+        self.description: str = ''
+        self.damageType: str = ''
+        self.damage: int = 0
+        self.minDamage: int = 0
+        self.maxDamage: int = 0
+        self.range: int = 0
+        self.STR: int = 0
+        self.AGI: int = 0
+        self.INT: int = 0
+        self.slot: str = ''
+
+    def load(itype: str, data: dict) -> 'ItemData':
+        result = ItemData()
+        keys = ITEM_TYPE_KEYS[itype]
+        for key in keys:
+            if key in REQUIREMENT_KEYS:
+                result.__dict__[key] = data['requirements'][key]
+                continue
+            result.__dict__[key] = data[key]
+        result.selected_type = itype
+        return result
 
     def to_json(self) -> dict:
-        # TO-DO
-        pass
+        result = {}
+        keys = ITEM_TYPE_KEYS[self.selected_type]
+        for key in keys:
+            if key in REQUIREMENT_KEYS:
+                if not 'requirements' in result:
+                    result['requirements'] = {}
+                result['requirements'][key] = int(self.__dict__[key])
+                continue
+            result[key] = self.__dict__[key]
+            if key in NUMBER_KEYS:
+                result[key] = int(self.__dict__[key])
+        return result
 
 class TileData:
     def __init__(self):
@@ -382,6 +438,12 @@ class RoomData:
                 s += [''.join(row)]
             f.write('\n'.join(s))
 
+def extract_items(t: str, l: list):
+    result = []
+    for d in l:
+        result += [ItemData.load(t, d)]
+    return result
+
 class GameObject:
     def __init__(self, name: str):
         # game info
@@ -436,6 +498,14 @@ class GameObject:
                 room.scripts += [script]
             for i in range(len(room.tiles)):
                 room.tiles[i].rgb = COLORS[i]
+        # load the items
+        with open(os.path.join(path, ITEMS_FILE), 'r') as f:
+            s = f.read()
+            data = json.loads(s)
+            result.items += extract_items('basic', data['basic'])
+            result.items += extract_items('ammo', data['ammo'])
+            result.items += extract_items('ranged weapon', data['weapons']['ranged'])
+            result.items += extract_items('melee weapon', data['weapons']['melee'])
         if GAME_CREATOR_FILE in rf['files']:
             with open(os.path.join(path, GAME_CREATOR_FILE), 'r') as f:
                 gcd = json.loads(f.read())
@@ -502,6 +572,21 @@ class GameObject:
         # save room data
         for room in self.rooms:
             room.save(path_to_game)
+        # save items
+        with open(os.path.join(path_to_game, ITEMS_FILE), 'w') as f:
+            data = {}
+            data['basic'] = []
+            data['ammo'] = []
+            data['weapons'] = {'ranged': [], 'melee': []}
+            m = {
+                'basic': data['basic'],
+                'ammo': data['ammo'],
+                'melee weapon': data['weapons']['melee'],
+                'ranged weapon': data['weapons']['ranged']
+            }
+            for item in self.items:
+                m[item.selected_type] += [item.to_json()]
+            f.write(json.dumps(data, indent=4))
         # save game creator data
         gcd = {}
         # gcd['tile_colors'] = {}
@@ -513,3 +598,10 @@ class GameObject:
         js = json.dumps(gcd, indent=4, sort_keys=True)
         with open(os.path.join(path_to_game, GAME_CREATOR_FILE), 'w') as f:
             f.write(js)
+
+    def count_items_with_name(self, name: str):
+        result = 0
+        for item in self.items:
+            if item.name == name:
+                result += 1
+        return result

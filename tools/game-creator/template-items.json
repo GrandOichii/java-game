@@ -1,0 +1,52 @@
+{
+    "basic": [
+        {
+            "name": "rock",
+            "displayName": "Rock",
+            "description": "A small rock. Can be found anywhere. Not much use"
+        }
+    ],
+    "ammo": [
+        {
+            "name": "wooden_arrow",
+            "displayName": "Wooden arrow",
+            "description": "An arrow made of wood. Standard ammunition.",
+            "ammoType": "ARROW",
+            "damageType": "PHYSICAL",
+            "damage": 2
+        }
+    ],
+    "weapons": {
+        "melee": [
+            {
+                "name": "wooden_stick",
+                "displayName": "Wooden stick",
+                "description": "A wooden stick. Feels very natural to hold, although won't do any moderate damage.",
+                "damageType": "PHYSICAL",
+                "minDamage": 2,
+                "maxDamage": 3,
+                "range": 3,
+                "requirements": {
+                    "STR": 5
+                },
+                "slot": "ARMS"
+            }
+        ],
+        "ranged": [
+            {
+                "name": "wooden_bow",
+                "displayName": "Wooden bow",
+                "description": "A wooden bow. The most basic of all bows.",
+                "minDamage": 2,
+                "maxDamage": 3,
+                "range": 7,
+                "requirements": {
+                    "STR": 10,
+                    "AGI": 10
+                },
+                "slot": "ARMS",
+                "ammoType": "ARROW"
+            }
+        ]
+    }
+}

@@ -8,110 +8,44 @@ import util
 
 WINDOW_TITLE = 'Item Editor'
 
-LABEL_WIDTH = 100
-LINE_EDIT_WIDTH = 200
+LABEL_WIDTH = 120
+ELEMENT_WIDTH = 200
+ELEMENT_HEIGHT = util.LABEL_HEIGHT
 LABEL_STYLE_SHEET = util.BORDER_1PX_BLACK_STYLE + util.PADDING_LEFT_1PX_STYLE
 
-NAME_LABEL_TEXT = 'Name: '
-NAME_LABEL_WIDTH = LABEL_WIDTH
-NAME_LABEL_HEIGHT = util.LABEL_HEIGHT
-NAME_LABEL_Y = 1
-NAME_LABEL_X = 1
-NAME_LABEL_STYLE_SHEET = LABEL_STYLE_SHEET
-
-NAME_LINE_EDIT_Y = NAME_LABEL_Y
-NAME_LINE_EDIT_X = NAME_LABEL_X + NAME_LABEL_WIDTH + util.BETWEEN_ELEMENTS_HORIZONTAL
-NAME_LINE_EDIT_HEIGHT = NAME_LABEL_HEIGHT
-NAME_LINE_EDIT_WIDTH = LINE_EDIT_WIDTH
-
-DISPLAY_NAME_LABEL_TEXT = 'Display name:'
-DISPLAY_NAME_LABEL_HEIGHT = util.LABEL_HEIGHT
-DISPLAY_NAME_LABEL_WIDTH = LABEL_WIDTH
-DISPLAY_NAME_LABEL_Y = NAME_LABEL_Y + NAME_LABEL_HEIGHT + util.BETWEEN_ELEMENTS_VERTICAL
-DISPLAY_NAME_LABEL_X = NAME_LABEL_X
-DISPLAY_NAME_LABEL_STYLE_SHEET = LABEL_STYLE_SHEET
-
-DISPLAY_NAME_LINE_EDIT_Y = DISPLAY_NAME_LABEL_Y
-DISPLAY_NAME_LINE_EDIT_X = DISPLAY_NAME_LABEL_X + DISPLAY_NAME_LABEL_WIDTH + util.BETWEEN_ELEMENTS_HORIZONTAL
-DISPLAY_NAME_LINE_EDIT_HEIGHT = DISPLAY_NAME_LABEL_HEIGHT
-DISPLAY_NAME_LINE_EDIT_WIDTH = LINE_EDIT_WIDTH
-
 TYPE_LABEL_TEXT = 'Item type: '
-TYPE_LABEL_HEIGHT = util.LABEL_HEIGHT
+TYPE_LABEL_HEIGHT = ELEMENT_HEIGHT
 TYPE_LABEL_WIDTH = LABEL_WIDTH
-TYPE_LABEL_Y = DISPLAY_NAME_LABEL_Y + DISPLAY_NAME_LABEL_HEIGHT + util.BETWEEN_ELEMENTS_VERTICAL
-TYPE_LABEL_X = DISPLAY_NAME_LABEL_X
+TYPE_LABEL_Y = util.BETWEEN_ELEMENTS_VERTICAL
+TYPE_LABEL_X = util.BETWEEN_ELEMENTS_HORIZONTAL
 TYPE_LABEL_STYLE_SHEET = LABEL_STYLE_SHEET
 
 TYPE_COMBO_BOX_HEIGHT = TYPE_LABEL_HEIGHT
-TYPE_COMBO_BOX_WIDTH = LINE_EDIT_WIDTH
+TYPE_COMBO_BOX_WIDTH = ELEMENT_WIDTH
 TYPE_COMBO_BOX_Y = TYPE_LABEL_Y
 TYPE_COMBO_BOX_X = TYPE_LABEL_X + TYPE_LABEL_WIDTH + util.BETWEEN_ELEMENTS_HORIZONTAL
-
-# DISPLAY_NAME_LABEL
-
-'''
-== Layout ==
-Name: <text field>
-Display name: <text field>
-Type: <drop down box>
-!Basic:
-    <no elements>
-!Ammo:
-    Damage: <int text field>
-    Ammo type: <drop down box>
-!Weapon:
-    Damage type: <drop down box>
-    Damage: <int text field> - <int text field>
-    Range: <int text field>
-    Equip slot: <drop down box>
-    Requirements
-    STR: <int text field>
-    AGI: <int text field>
-    Weapon type: <drop down box>
-    !Melee:
-        <no elements>
-    !Ranged:
-        Ammo type: <drop down box>
-Description
-'''
 
 class ItemEditorWindow(QDialog):
     def __init__(self, parent, item=None):
         super().__init__()
         self.parent_window = parent
         self.ok = False
-        self.item = item
-        if self.item is None:
-            self.item = gsdk.ItemData()
         self.initUI()
-        self.update_values()
+        self.editing = False
+        self.item = item
+        if item is not None:
+            self.editing = True
+            self.set_values(item)
+        self.changed_item_type()
 
-    def update_values(self):
-        # item name
-        self.name_edit.setText(self.item.name)
-        # item display name
-        self.display_name_edit.setText(self.item.display_name)
-        # item type
-        self.type_combo_box.setCurrentText(self.item.selected_type)
+    def set_values(self, item: gsdk.ItemData):
+        d = item.__dict__
+        self.type_combo_box.setCurrentText(d['selected_type'])
+        for key in gsdk.ITEM_KEYS:
+            self.elements[key]['element'].setText_(str(d[key]))
 
     def initUI(self):
         self.setWindowTitle(WINDOW_TITLE)
-        # labels
-
-        name_label = QLabel(self)
-        name_label.setText(NAME_LABEL_TEXT)
-        name_label.move(NAME_LABEL_X, NAME_LABEL_Y)
-        name_label.setFixedHeight(NAME_LABEL_HEIGHT)
-        name_label.setFixedWidth(NAME_LABEL_WIDTH)
-        name_label.setStyleSheet(NAME_LABEL_STYLE_SHEET)
-
-        display_name_label = QLabel(self)
-        display_name_label.setText(DISPLAY_NAME_LABEL_TEXT)
-        display_name_label.move(DISPLAY_NAME_LABEL_X, DISPLAY_NAME_LABEL_Y)
-        display_name_label.setFixedHeight(DISPLAY_NAME_LABEL_HEIGHT)
-        display_name_label.setFixedWidth(DISPLAY_NAME_LABEL_WIDTH)
-        display_name_label.setStyleSheet(DISPLAY_NAME_LABEL_STYLE_SHEET)
 
         type_label = QLabel(self)
         type_label.setText(TYPE_LABEL_TEXT)
@@ -120,26 +54,167 @@ class ItemEditorWindow(QDialog):
         type_label.setFixedWidth(TYPE_LABEL_WIDTH)
         type_label.setStyleSheet(TYPE_LABEL_STYLE_SHEET)
 
-        # line edits
-
-        self.name_edit = QLineEdit(self)
-        self.name_edit.move(NAME_LINE_EDIT_X, NAME_LINE_EDIT_Y)
-        self.name_edit.setFixedSize(NAME_LINE_EDIT_WIDTH, NAME_LINE_EDIT_HEIGHT)
-
-        self.display_name_edit = QLineEdit(self)
-        self.display_name_edit.move(DISPLAY_NAME_LINE_EDIT_X, DISPLAY_NAME_LINE_EDIT_Y)
-        self.display_name_edit.setFixedSize(DISPLAY_NAME_LINE_EDIT_WIDTH, DISPLAY_NAME_LINE_EDIT_HEIGHT)
-
-        # combo boxes boxes
-
         self.type_combo_box = QComboBox(self)
         self.type_combo_box.setFixedHeight(TYPE_COMBO_BOX_HEIGHT)
         self.type_combo_box.setFixedWidth(TYPE_COMBO_BOX_WIDTH)
         self.type_combo_box.move(TYPE_COMBO_BOX_X, TYPE_COMBO_BOX_Y)
         for itype in gsdk.ITEM_TYPES:
             self.type_combo_box.addItem(itype)
+        self.type_combo_box.currentIndexChanged.connect(self.changed_item_type)
 
-        # buttons
+        self.el_i = 1
+
+        def create_label(text: str) -> QLabel:
+            result = QLabel()
+            result.setFixedHeight(ELEMENT_HEIGHT)
+            result.setFixedWidth(LABEL_WIDTH)
+            result.setText(text)
+            result.setStyleSheet(LABEL_STYLE_SHEET)
+            result.move(util.BETWEEN_ELEMENTS_HORIZONTAL, util.BETWEEN_ELEMENTS_VERTICAL + self.el_i * (util.BETWEEN_ELEMENTS_VERTICAL + ELEMENT_HEIGHT))
+            return result
+
+        def move_element(element):
+            y = util.BETWEEN_ELEMENTS_VERTICAL + self.el_i * (util.BETWEEN_ELEMENTS_VERTICAL + ELEMENT_HEIGHT)
+            x = util.BETWEEN_ELEMENTS_HORIZONTAL * 2 + LABEL_WIDTH
+            element.move(x, y)
+            self.el_i += 1
+
+        def set_element_size(element):
+            element.setFixedHeight(ELEMENT_HEIGHT)
+            element.setFixedWidth(ELEMENT_WIDTH)
+
+        def create_combo_box(items: list[str]):
+            result = QComboBox()
+            for item in items:
+                result.addItem(item)
+            set_element_size(result)
+            move_element(result)
+            result.getText_ = result.currentText
+            result.setText_ = result.setEditText
+            return result
+
+        def create_line_edit():
+            result = QLineEdit()
+            set_element_size(result)
+            move_element(result)
+            result.getText_ = result.text
+            result.setText_ = result.setText
+            result.setText('aaa' + str(self.el_i))
+            return result
+
+        def create_number_edit(_min: int, _max: int):
+            result = create_line_edit()
+            result.setValidator(QIntValidator(_min, _max, self))
+            result.setText(str(self.el_i))
+            return result
+
+        self.elements = {
+            'name': {
+                'label': create_label('Name:'),
+                'element': create_line_edit()
+            },
+            'displayName': {
+                'label': create_label('Display name:'),
+                'element': create_line_edit()
+            },
+            'ammoType': {
+                'label': create_label('Ammo type:'),
+                'element': create_combo_box(gsdk.AMMO_TYPES)
+            },
+            'damageType': {
+                'label': create_label('Damage type'),
+                'element': create_combo_box(gsdk.DAMAGE_TYPES)
+            },
+            'damage': {
+                'label': create_label('Damage: '),
+                'element': create_number_edit(0, gsdk.MAX_DAMAGE)
+            },
+            'range': {
+                'label': create_label('Range: '),
+                'element': create_number_edit(0, gsdk.MAX_RANGE)
+            },
+            'minDamage': {
+                'label': create_label('Min damage: '),
+                'element': create_number_edit(0, gsdk.MAX_DAMAGE)
+            },
+            'maxDamage': {
+                'label': create_label('Max damage: '),
+                'element': create_number_edit(0, gsdk.MAX_DAMAGE)
+            },
+            'slot': {
+                'label': create_label('Slot:'),
+                'element': create_combo_box(gsdk.SLOTS)
+            },
+            'STR': {
+                'label': create_label('STR requirement:'),
+                'element': create_number_edit(0, gsdk.MAX_ATTRIBUTE)
+            },
+            'AGI': {
+                'label': create_label('AGI requirement:'),
+                'element': create_number_edit(0, gsdk.MAX_ATTRIBUTE)
+            },
+            'INT': {
+                'label': create_label('INT requirement:'),
+                'element': create_number_edit(0, gsdk.MAX_ATTRIBUTE)
+            },
+            'description': {
+                'label': create_label('Description: '),
+                'element': create_line_edit()
+            }
+        }
+        
+        for pair in self.elements.values():
+            pair['label'].setParent(self)
+            pair['element'].setParent(self)
+
+        BUTTON_HEIGHT = 50
+        BUTTON_WIDTH = 100
+        y = util.BETWEEN_ELEMENTS_VERTICAL + self.el_i * (util.BETWEEN_ELEMENTS_VERTICAL + ELEMENT_HEIGHT)
+        x = util.BETWEEN_ELEMENTS_HORIZONTAL
+
+        save_button = QPushButton(self)
+        save_button.setText('Save')
+        save_button.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
+        save_button.move(x, y)
+        save_button.clicked.connect(self.save_action)
+
+        cancel_button = QPushButton(self)
+        cancel_button.setText('Cancel')
+        cancel_button.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
+        cancel_button.move(x + util.BETWEEN_ELEMENTS_HORIZONTAL + BUTTON_WIDTH, y)
+        cancel_button.clicked.connect(self.cancel_action)
+
+    def cancel_action(self):
+        self.ok = False
+        self.item = None
+        self.close()
+
+    def save_action(self):
+        name = self.elements['name']['element'].getText_()
+        if self.parent_window.game.count_items_with_name(name) == 1:
+            if self.item == None or self.item.name != name:
+                util.show_message_box('Item with name ' + name + ' already exists')
+                return
+        t = self.type_combo_box.currentText()
+        keys = gsdk.ITEM_TYPE_KEYS[t]
+        for key in keys:
+            if self.elements[key]['element'].getText_() == '':
+                util.show_message_box('Enter item ' + key)
+                return
+        self.item = gsdk.ItemData()
+        self.item.selected_type = self.type_combo_box.currentText()
+        for key in gsdk.ITEM_KEYS:
+            self.item.__dict__[key] = self.elements[key]['element'].getText_()
+        self.ok = True
+        self.close()
+
+    def changed_item_type(self):
+        t = self.type_combo_box.currentText()
+        tags = gsdk.ITEM_TYPE_KEYS[t]
+        for tag, pair in self.elements.items():
+            pair['element'].setEnabled(False)
+            if tag in tags:
+                pair['element'].setEnabled(True)
 
     def edit(self) -> tuple[gsdk.ItemData, bool]:
         self.exec_()

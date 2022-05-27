@@ -1,0 +1,51 @@
+{
+    "basic": [
+        {
+            "name": "item1",
+            "displayName": "aaa3",
+            "description": "aaa14"
+        },
+        {
+            "name": "item2",
+            "displayName": "aaa3",
+            "description": "aaa14"
+        }
+    ],
+    "ammo": [],
+    "weapons": {
+        "ranged": [
+            {
+                "name": "item3",
+                "displayName": "aaa3",
+                "description": "aaa14",
+                "minDamage": 8,
+                "maxDamage": 9,
+                "range": 7,
+                "requirements": {
+                    "STR": 11,
+                    "AGI": 12,
+                    "INT": 13
+                },
+                "slot": "ARM",
+                "ammoType": ""
+            }
+        ],
+        "melee": [
+            {
+                "name": "item4",
+                "displayName": "aaa3",
+                "description": "aaa14",
+                "damageType": "PHYSICAL",
+                "minDamage": 8,
+                "maxDamage": 9,
+                "range": 7,
+                "requirements": {
+                    "STR": 11,
+                    "AGI": 12,
+                    "INT": 13
+                },
+                "slot": "ARM"
+            }
+        ]
+    }
+}

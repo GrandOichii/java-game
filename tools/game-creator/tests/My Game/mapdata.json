@@ -1,0 +1,12 @@
+{
+    "index": "asd",
+    "rooms": {
+        "asd": {
+            "path": "asd/room.room",
+            "tileset": "asd/tileset.json",
+            "visibleRange": 10
+        }
+    },
+    "startX": 1,
+    "startY": 1
+}
