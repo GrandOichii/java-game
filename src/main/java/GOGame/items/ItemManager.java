@@ -13,7 +13,11 @@ public class ItemManager {
     @JsonProperty("weapons")
     private WeaponLoadInfo weapons;
 
-    private List<Item> items = new ArrayList<>();
+    private final List<Item> items = new ArrayList<>();
+
+    public List<Item> getItems() {
+        return items;
+    }
 
     public void setUp() {
         items.addAll(List.of(basicItems));

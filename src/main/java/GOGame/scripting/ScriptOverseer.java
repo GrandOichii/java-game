@@ -58,6 +58,33 @@ public class ScriptOverseer {
             }
         });
         funcMap = new HashMap<>();
+        funcMap.put("debug:list_commands", new Function() {
+            @Override
+            public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
+                var reqCount = 0;
+                if (args.length != reqCount) {
+                    throw new ScriptArgumentsException("list_commands", reqCount, args.length);
+                }
+                System.out.println("Commands list:");
+                for (var key : funcMap.keySet()) {
+                    System.out.println("\t" + key);
+                }
+            }
+        });
+        funcMap.put("debug:list_all_items", new Function() {
+            @Override
+            public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
+                var reqCount = 0;
+                if (args.length != reqCount) {
+                    throw new ScriptArgumentsException("list_all_items", reqCount, args.length);
+                }
+                System.out.println("Item names:");
+                var items = e.getItemManager().getItems();
+                for (var item : items) {
+                    System.out.println("\t" + item.getName());
+                }
+            }
+        });
         funcMap.put("run", new Function() {
             @Override
             public void exec(Object[] args, ScriptOverseer so) throws ScriptException {

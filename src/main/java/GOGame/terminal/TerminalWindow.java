@@ -38,35 +38,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-class TileManager {
-    private final HashMap<String, CCTMessage> tiles = new HashMap<>();
-
-    public boolean has(String tileName) { return this.tiles.containsKey(tileName); }
-    public CCTMessage get(String tileName) { return this.tiles.get(tileName); }
-
-    public static TileManager load(File file) throws IOException {
-        var result = new TileManager();
-        var text = Utility.readFile(file);
-        ObjectMapper mapper = new ObjectMapper();
-        var data = mapper.readValue(text, new TypeReference<HashMap<String, HashMap<String, String>>>() {
-        });
-
-        var templates = data.get("templates");
-        var actualTemplates = new HashMap<String, CCTMessage>();
-        for (var key : templates.keySet()) {
-            var cct = new CCTMessage(templates.get(key));
-            actualTemplates.put(key, cct);
-        }
-
-        var tiles = data.get("tiles");
-        for (var tile : tiles.keySet()) {
-            var cct = actualTemplates.get(tiles.get(tile));
-            result.tiles.put(tile, cct);
-        }
-        return result;
-    }
-}
-
 public class TerminalWindow implements GOGame.GameWindow {
 //    CCT labels
     private static final CCTMessage LOG_WINDOW_LABEL = new CCTMessage("${white-red}Logs");
@@ -438,6 +409,7 @@ public class TerminalWindow implements GOGame.GameWindow {
         int cursor = 0;
         final int maxLength = wWidth * 2 - 5;
         final var prevLines = new ArrayList<String>();
+        final var maxPrevSize = wHeight - 3;
 
         while (true) {
 //            draw
@@ -450,6 +422,14 @@ public class TerminalWindow implements GOGame.GameWindow {
             TerminalUtility.putAt(terminal, commandX, commandY, String.join("", line));
             terminal.disableSGR(SGR.UNDERLINE);
             TerminalUtility.putAt(terminal, commandX + cursor, commandY, " ", "white-cyan");
+            var size = prevLines.size();
+            for (int i = 0; i < maxPrevSize; i++) {
+                if (i >= size) {
+                    break;
+                }
+                var prevLine = prevLines.get(size - i - 1);
+                TerminalUtility.putAt(terminal, commandX - 2, commandY - i - 1, "> " + prevLine, "green");
+            }
             terminal.flush();
 //            handle input
             var key = this.terminal.readInput();
