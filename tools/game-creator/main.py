@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QAbstractItemView, QMessageBox, QInputDialog, QApplication, QMainWindow, QAction, QLabel, QComboBox, QPushButton, QDialog, QLineEdit, QListWidget
 from PyQt5.QtCore import *
+from ContainerEditor import ContainerEditorWindow
 from RoomEditor import RoomEditorWindow
 from ItemEditor import ItemEditorWindow
 import util
@@ -421,6 +422,10 @@ class MainAppWindow(QMainWindow):
             window.close()
         self.room_windows = []
         self.room_names_list.clear()
+        self.item_names_list.clear()
+        self.container_names_list.clear()
+        self.enemy_names_list.clear()
+        # TODO add class list clearing?
 
     #  actions
 
@@ -436,13 +441,26 @@ class MainAppWindow(QMainWindow):
         item, ok = w.edit()
         if not ok:
             return
+        old_name = self.game.items[i].name
         self.game.items[i] = item
         sel = self.item_names_list.selectedItems()[0]
         sel.setText(item.name)
+        # change container item names
+        for container in self.game.containers:
+            for it in container.items:
+                if it.name == old_name:
+                    it.name = item.name
 
     def container_double_clicked(self, e):
-        # TODO
-        pass
+        i = self.container_names_list.selectedIndexes()[0].row()
+        container = self.game.containers[i]
+        w = ContainerEditorWindow(self, container)
+        container, ok = w.edit()
+        if not ok:
+            return
+        self.game.containers[i] = container
+        sel = self.container_names_list.selectedItems()[0]
+        sel.setText(container.key)
 
     def enemy_double_clicked(self, e):
         # TODO
@@ -483,6 +501,9 @@ class MainAppWindow(QMainWindow):
         # items
         for item in self.game.items:
             self.item_names_list.addItem(item.name)
+        # containers
+        for container in self.game.containers:
+            self.container_names_list.addItem(container.key)
         # rooms
         for room in self.game.rooms:
             w = RoomEditorWindow(self, room.name)
@@ -589,12 +610,28 @@ class MainAppWindow(QMainWindow):
         self.item_names_list.takeItem(i)
 
     def new_container_action(self):
-        # TODO
-        pass
+        if self.game is None:
+            return
+        if len(self.game.items) == 0:
+            util.show_message_box('No items to add to container')
+            return
+        w = ContainerEditorWindow(self)
+        container, ok = w.edit()
+        if not ok:
+            return
+        self.game.containers += [container]
+        self.container_names_list.addItem(container.key)
 
     def delete_container_action(self):
-        # TODO
-        pass
+        si = self.container_names_list.selectedIndexes()
+        if len(si) != 1:
+            return
+        i = si[0].row()
+        container = self.game.containers[i]
+        if util.show_message_box(f'Are you sure you want to delete container {container.name}?', QMessageBox.No | QMessageBox.Yes) == QMessageBox.No:
+            return
+        self.game.containers.remove(container)
+        self.container_names_list.takeItem(i)
 
     def new_enemy_action(self):
         # TODO

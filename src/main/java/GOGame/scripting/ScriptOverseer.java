@@ -136,9 +136,21 @@ public class ScriptOverseer {
                     throw new ScriptArgumentsException("give", reqCount, args.length);
                 }
                 var itemName = so.toString(args[0]);
-                System.out.println(itemName);
                 var item = e.getItemManager().get(itemName);
                 e.getPlayer().addItem(item);
+            }
+        });
+        funcMap.put("opencontainer", new Function() {
+            @Override
+            public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
+//                opencontainer chest1 "Small Chest"
+                var reqCount = 2;
+                if (args.length != reqCount) {
+                    throw new ScriptArgumentsException("opencontainer", reqCount, args.length);
+                }
+                var containerName = (String)args[0];
+                var containerTop = so.toString(args[1]);
+                e.openContainer(containerName, containerTop);
             }
         });
         funcMap.put("tset", new Function() {

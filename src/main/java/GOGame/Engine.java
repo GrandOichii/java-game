@@ -1,7 +1,7 @@
 package GOGame;
 
 import GOGame.exceptions.ScriptException;
-import GOGame.items.GameContainer;
+import GOGame.items.ContainerManager;
 import GOGame.items.Item;
 import GOGame.items.ItemManager;
 import GOGame.map.GameMap;
@@ -46,6 +46,7 @@ public class Engine {
     private static final String GAME_INFO_FILE = "game_info.json";  // Name of the file where all the game info is described
     private static final String ITEMS_FILE = "items.json";      // Name of the file where all the items are described
     private static final String CONTAINERS_FILE = "containers.json"; // Name of the file where all containers are described
+    private static final String ENEMIES_FILES = "enemies.json"; // Name of the file where all enemies are described
     private static final String SAVES_DIR = "saves"; // Directory of the saves folder
     private static final int RAY_AMOUNT = 200;
     private static final Double[] RAY_RADS = new ArrayList<Double>(){{
@@ -58,7 +59,8 @@ public class Engine {
             CLASSES_FILE,
             GAME_INFO_FILE,
             ITEMS_FILE,
-//            CONTAINERS_FILE
+            CONTAINERS_FILE,
+//            ENEMIES_FILE
     };
     private final GameMap map;
 
@@ -82,7 +84,7 @@ public class Engine {
         return itemManager;
     }
 
-    private final HashMap<String, GameContainer> containerMap;
+    private final ContainerManager containerManager;
     private final String path;
     private GameWindow w;
 
@@ -110,7 +112,7 @@ public class Engine {
 //        load the items
         this.itemManager = Item.loadItems(fileMap.get(ITEMS_FILE));
 //        load the containers
-        this.containerMap = GameContainer.loadContainers(fileMap.get(CONTAINERS_FILE));
+        this.containerManager = ContainerManager.load(this, fileMap.get(CONTAINERS_FILE));
     }
 
     public String extractStringData() {
@@ -294,5 +296,10 @@ public class Engine {
         if (room.hasLoadScript()) {
             room.executeLoadScript(so);
         }
+    }
+
+    public void openContainer(String containerName, String containerTop) {
+//        this.containerManager
+        System.out.println(containerName + "\t" + containerTop);
     }
 }

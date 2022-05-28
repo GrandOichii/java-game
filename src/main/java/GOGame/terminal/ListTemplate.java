@@ -9,6 +9,11 @@ public class ListTemplate {
     private int maxDisplayAmount;
     private int cursor;
     private int choice;
+
+    public int getChoice() {
+        return choice;
+    }
+
     private int page;
 
     public ListTemplate(ArrayList<DrawableAsLine> items, int maxDisplayAmount) {
@@ -31,7 +36,7 @@ public class ListTemplate {
         items.add(item);
     }
 
-    public void scrollUp() {
+    public void moveUp() {
         choice--;
         cursor--;
         var size = items.size();
@@ -52,7 +57,7 @@ public class ListTemplate {
         }
     }
 
-    public void scrollDown() {
+    public void moveDown() {
         choice++;
         cursor++;
         var size = items.size();

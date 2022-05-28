@@ -14,9 +14,9 @@ Minimum attribute value: 1
 Maximum attribute value: 99
 Player has the following Attributes:
 ~ VIT - vitality. Governs player's health.
-~ STR - strength. Governs player's damage by melee weapons. Bigger weapons require bigger STR.
-~ AGI - agility. Governs player's range of ranged weapons and stamina stat. Better armor requires bigger STR.
-~ INT - intelligence. Govern's player's spell damage. Better spells require bigger INT.
+~ STR - strength. Governs player's weapons damage. Bigger weapons require bigger STR.
+~ AGI - agility. Governs player's range of ranged weapons. Better armor requires bigger STR.
+~ INT - intelligence. Governs player's spell damage. Better spells require bigger INT.
 ~ WIS - wisdom. Governs the amount of mana the player has.
 ~ LUC - luck. Governs player's chance to dodge attacks, loot drops and other events.
 

@@ -27,21 +27,22 @@ public class Inventory {
         items.add(new Pair<>(itemName, 1));
     }
 
-    public String[] getAsPrettyList() {
-        var result = new ArrayList<String>();
+    public ItemLine[] getAsPrettyList() {
+        var result = new ArrayList<ItemLine>();
         var itemManager = e.getItemManager();
         for (var pair : items) {
             var item = itemManager.get(pair.getFirst());
             var displayName = item.getDisplayName();
+            var name = item.getName();
             var amount = pair.getSecond();
             if (item.isStackable()) {
-                result.add(String.format("%s x %d", displayName, amount));
+                result.add(new ItemLine(name, displayName, amount));
                 continue;
             }
             for (int i = 0; i < amount; i++) {
-                result.add(displayName);
+                result.add(new ItemLine(name, displayName));
             }
         }
-        return result.toArray(new String[0]);
+        return result.toArray(new ItemLine[0]);
     }
 }

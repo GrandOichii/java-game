@@ -1,0 +1,2 @@
+set sign_text "Chests"
+run read_sign

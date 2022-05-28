@@ -1,4 +1,3 @@
-from re import S
 from PyQt5.QtGui import QColor, QStandardItem, QPixmap, QIcon
 
 import json
@@ -31,7 +30,6 @@ for r in range(0, 3):
         for b in range(0, 3):
             COLORS += [[r * 127, g * 127, b * 127]]
 
-
 DURABILITY_MIN = -1
 DURABILITY_MAX = 99
 
@@ -42,8 +40,8 @@ REQUIRED_FILES = [
     CLASSES_FILE,
     GAME_INFO_FILE,
     ITEMS_FILE,
+    CONTAINERS_FILE,
     # ENEMIES_FILE,
-    # CONTAINERS_FILE
 ]
 
 class CheckError:
@@ -78,7 +76,7 @@ COMMAND_MAP = {
     'log': -1,
     'clearenemycodes': 0,
     'additem': 1,
-    'opencontainer': 1
+    'opencontainer': -1
 }
 
 def is_good_script(script: str) -> CheckError:
@@ -262,6 +260,8 @@ class ItemData:
         keys = ITEM_TYPE_KEYS[itype]
         for key in keys:
             if key in REQUIREMENT_KEYS:
+                if not key in data['requirements']:
+                    continue
                 result.__dict__[key] = data['requirements'][key]
                 continue
             result.__dict__[key] = data[key]
@@ -281,6 +281,18 @@ class ItemData:
             if key in NUMBER_KEYS:
                 result[key] = int(self.__dict__[key])
         return result
+
+CONTAINER_MAX_ITEM_AMOUNT = 100
+
+class ContainerItem:
+    def __init__(self):
+        self.name: str = ''
+        self.amount: int = 0
+
+class ContainerData:
+    def __init__(self):
+        self.key: str = ''
+        self.items: list[ContainerItem] = []
 
 class TileData:
     def __init__(self):
@@ -428,7 +440,7 @@ class RoomData:
         for tile in self.tiles:
             tmap[CHARS[ci]] = tile.to_json()
             ci += 1
-        s = json.dumps(tmap, indent=4, sort_keys=True)
+        s = json.dumps(tmap, indent=4)
         with open(os.path.join(room_path, TILESET_FILE), 'w') as f:
             f.write(s)
         # save the room itself
@@ -457,6 +469,8 @@ class GameObject:
         self.rooms: list[RoomData] = []
         # items
         self.items: list[ItemData] = []
+        # conteiners
+        self.containers: list[ContainerData] = []
 
     def load(path: str) -> 'GameObject':
         result = GameObject('')
@@ -506,6 +520,20 @@ class GameObject:
             result.items += extract_items('ammo', data['ammo'])
             result.items += extract_items('ranged weapon', data['weapons']['ranged'])
             result.items += extract_items('melee weapon', data['weapons']['melee'])
+        # load the containers
+        with open(os.path.join(path, CONTAINERS_FILE), 'r') as f:
+            s = f.read()
+            data = json.loads(s)
+            for key, items in data.items():
+                container = ContainerData()
+                container.key = key
+                container.items = []
+                for item_name, amount in items.items():
+                    item = ContainerItem()
+                    item.name = item_name
+                    item.amount = amount
+                    container.items += [item]
+                result.containers += [container]
         if GAME_CREATOR_FILE in rf['files']:
             with open(os.path.join(path, GAME_CREATOR_FILE), 'r') as f:
                 gcd = json.loads(f.read())
@@ -566,7 +594,7 @@ class GameObject:
         shutil.rmtree(path_to_game, ignore_errors=True)
         create_dir(path_to_game)
         for path, ob in rfm.items():
-            js = json.dumps(ob.to_json(), indent=4, sort_keys=True)
+            js = json.dumps(ob.to_json(), indent=4)
             with open(os.path.join(path_to_game, path), 'w') as f:
                 f.write(js)
         # save room data
@@ -587,6 +615,15 @@ class GameObject:
             for item in self.items:
                 m[item.selected_type] += [item.to_json()]
             f.write(json.dumps(data, indent=4))
+        # save containers
+        with open(os.path.join(path_to_game, CONTAINERS_FILE), 'w') as f:
+            data = {}
+            for container in self.containers:
+                _is = {}
+                for item in container.items:
+                    _is[item.name] = item.amount
+                data[container.key] = _is
+            f.write(json.dumps(data, indent=4))
         # save game creator data
         gcd = {}
         # gcd['tile_colors'] = {}
@@ -595,7 +632,7 @@ class GameObject:
             for tile in room.tiles:
                 data[tile.name] = tile.rgb
             gcd[room.name] = data
-        js = json.dumps(gcd, indent=4, sort_keys=True)
+        js = json.dumps(gcd, indent=4)
         with open(os.path.join(path_to_game, GAME_CREATOR_FILE), 'w') as f:
             f.write(js)
 
@@ -603,5 +640,12 @@ class GameObject:
         result = 0
         for item in self.items:
             if item.name == name:
+                result += 1
+        return result
+
+    def count_containers_with_key(self, key: str):
+        result = 0
+        for container in self.containers:
+            if container.key == key:
                 result += 1
         return result

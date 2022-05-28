@@ -1,14 +1,9 @@
 package GOGame.terminal;
 
 import GOGame.Engine;
-import GOGame.Utility;
 import GOGame.exceptions.ScriptException;
 import GOGame.map.WTile;
 import GOGame.scripting.Script;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
@@ -27,10 +22,8 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
-import jdk.jshell.execution.Util;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -169,7 +162,7 @@ public class TerminalWindow implements GOGame.GameWindow {
         var lines = logToCCTs(message);
         for (var line : lines) {
             logList.addItem(line);
-            logList.scrollDown();
+            logList.moveDown();
             this.selectLogList = true;
         }
     }
@@ -295,7 +288,7 @@ public class TerminalWindow implements GOGame.GameWindow {
         throw new RuntimeException(e);
     }
 
-    private void startGame() throws ScriptException {
+    private void startGame() throws ScriptException, IOException {
 //        prepare the screen
         this.terminal.setCursorVisible(false);
 
@@ -368,7 +361,7 @@ public class TerminalWindow implements GOGame.GameWindow {
     private static final String INTERACT_KEY = "e";
     private static final String COMMANDS_KEY = "~";
 
-    private boolean handleInput(KeyStroke key) throws ScriptException {
+    private boolean handleInput(KeyStroke key) throws ScriptException, IOException {
         var k = stringKey(key);
         if (k == null) {
             return false;
@@ -570,11 +563,8 @@ public class TerminalWindow implements GOGame.GameWindow {
         }
     }
 
-    private void openInventory() {
-        var lines = game.getPlayer().getInventory().getAsPrettyList();
-        for (var line : lines) {
-            System.out.println(line);
-        }
+    private void openInventory() throws IOException {
+        new InventoryWindow(terminal, graphics, game).show();
     }
 
     private void interact() {
