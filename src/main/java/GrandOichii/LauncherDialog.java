@@ -1,7 +1,7 @@
 package GrandOichii;
 
 import GOGame.Engine;
-import GOGame.GameWindow;
+import GOGame.IGameWindow;
 import GOGame.terminal.TerminalWindow;
 import GOGame.tiles.TileWindow;
 
@@ -17,7 +17,7 @@ public class LauncherDialog extends JDialog {
             "Tiles",
             "Curses"
     };
-    private static final GameWindow[] windows = {
+    private static final IGameWindow[] windows = {
             new TileWindow(),
             new TerminalWindow()
     };

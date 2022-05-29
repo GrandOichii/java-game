@@ -1,7 +1,7 @@
 package GOGame.tiles;
 
 import GOGame.Engine;
-import GOGame.GameWindow;
+import GOGame.IGameWindow;
 import GOGame.exceptions.ScriptException;
 
 import javax.swing.*;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 
-public class TileWindow extends JFrame implements GameWindow, KeyListener {
+public class TileWindow extends JFrame implements IGameWindow, KeyListener {
     private static final int TILE_COUNT_X = 21;
     private static final int TILE_COUNT_Y = 11;
     private Engine game;
@@ -70,6 +70,11 @@ public class TileWindow extends JFrame implements GameWindow, KeyListener {
     @Override
     public void onLogUpdate(String message) {
 //        TODO
+    }
+
+    @Override
+    public void openContainer(String containerName, String containerTop) {
+        System.out.println(containerName + "\t" + containerTop);
     }
 
     @Override

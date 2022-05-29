@@ -1,15 +1,7 @@
 package GrandOichii;
 
 import GOGame.Engine;
-import GOGame.GameWindow;
-import GOGame.Utility;
-import GOGame.terminal.TerminalUtility;
 import GOGame.terminal.TerminalWindow;
-import GOGame.tiles.TilePanel;
-import GOGame.tiles.TileWindow;
-
-import javax.swing.*;
-import java.io.IOException;
 
 public class Main {
     private static Engine getWindow() {

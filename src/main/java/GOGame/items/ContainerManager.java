@@ -10,16 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-class Container {
-    private final ArrayList<Item> items = new ArrayList<>();
-    private final ArrayList<Integer> amounts = new ArrayList<>();
-
-    public void add(Item item, int amount) {
-        items.add(item);
-        amounts.add(amount);
-    }
-}
-
 
 public class ContainerManager {
     private final HashMap<String, Container> containerMap = new HashMap<>();
@@ -43,4 +33,7 @@ public class ContainerManager {
         return result;
     }
 
+    public Container get(String key) {
+        return containerMap.get(key);
+    }
 }

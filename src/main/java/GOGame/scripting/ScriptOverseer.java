@@ -25,6 +25,23 @@ public class ScriptOverseer {
         return v1.equals(v2);
     }
 
+    private static String formatContainer(String key) {
+        return "containers." + key;
+    }
+
+    public boolean isContainerLooted(String containerKey) {
+        var key = formatContainer(containerKey);
+        if (!this.immutableVars.containsKey(key)) {
+            return false;
+        }
+        return (int)this.immutableVars.get(key) == 1;
+    }
+
+    public void lootContainer(String containerKey) {
+        var key = formatContainer(containerKey);
+        this.immutableVars.put(key, 1);
+    }
+
     public ScriptOverseer(Engine engine) {
         this.e = engine;
         this.macros = new HashMap<>();
@@ -150,7 +167,11 @@ public class ScriptOverseer {
                 }
                 var containerName = (String)args[0];
                 var containerTop = so.toString(args[1]);
-                e.openContainer(containerName, containerTop);
+                try {
+                    e.openContainer(containerName, containerTop);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
         funcMap.put("tset", new Function() {

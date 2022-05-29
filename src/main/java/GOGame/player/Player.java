@@ -1,6 +1,7 @@
 package GOGame.player;
 
 import GOGame.Engine;
+import GOGame.items.Container;
 import GOGame.items.Inventory;
 import GOGame.items.Item;
 
@@ -11,6 +12,10 @@ public class Player {
 
     public Inventory getInventory() {
         return inventory;
+    }
+
+    public void addItemsFromContainer(Container container) {
+        inventory.addItemsFromContainer(container);
     }
 
     public Player(Engine engine, String name, PlayerClass pClass) {

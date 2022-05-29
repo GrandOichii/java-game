@@ -54,6 +54,9 @@ public class CCTMessage implements DrawableAsLine{
     public void draw(Terminal t, int x, int y) {
         this.drawLine(t, x, y, false);
     }
+    public void draw(Terminal t, int x, int y, boolean reverseColor) {
+        this.drawLine(t, x, y, reverseColor);
+    }
 
     public int foo() {
         return fgColors.get(0).getGreen();

@@ -32,22 +32,10 @@ set spawned 1
 set opened_secret1 0
 set __item_name "rock"
 run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
 set __item_name "wooden_arrow"
 run give_item
 run give_item
-run give_item
-run give_item
+set __item_name "broadsword"
 run give_item
 }
 

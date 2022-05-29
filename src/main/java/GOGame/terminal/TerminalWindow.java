@@ -1,6 +1,7 @@
 package GOGame.terminal;
 
 import GOGame.Engine;
+import GOGame.IGameWindow;
 import GOGame.exceptions.ScriptException;
 import GOGame.map.WTile;
 import GOGame.scripting.Script;
@@ -31,7 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-public class TerminalWindow implements GOGame.GameWindow {
+public class TerminalWindow implements IGameWindow {
 //    CCT labels
     private static final CCTMessage LOG_WINDOW_LABEL = new CCTMessage("${white-red}Logs");
     private static final CCTMessage INFO_WINDOW_LABEL = new CCTMessage("${white-cyan}Player info");
@@ -164,6 +165,19 @@ public class TerminalWindow implements GOGame.GameWindow {
             logList.addItem(line);
             logList.moveDown();
             this.selectLogList = true;
+        }
+    }
+
+    @Override
+    public void openContainer(String containerName, String containerTop) throws IOException {
+        if (game.isContainerLooted(containerName)) {
+            this.requestChoice(containerTop + " is empty", new String[]{"Ok"});
+            return;
+        }
+        var w = new ContainerWindow(terminal, graphics, game, containerName, containerTop);
+        w.show();
+        if (w.lootConfirmed()) {
+            game.lootContainer(containerName);
         }
     }
 

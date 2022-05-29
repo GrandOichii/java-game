@@ -76,7 +76,8 @@ COMMAND_MAP = {
     'log': -1,
     'clearenemycodes': 0,
     'additem': 1,
-    'opencontainer': -1
+    'opencontainer': -1,
+    'give': 1
 }
 
 def is_good_script(script: str) -> CheckError:

@@ -21,5 +21,8 @@
     "chest8": {
         "wooden_stick": 1,
         "rock": 1
+    },
+    "chest5": {
+        "rock": 99
     }
 }

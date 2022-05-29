@@ -85,8 +85,17 @@ public class Engine {
     }
 
     private final ContainerManager containerManager;
+
+    public ContainerManager getContainerManager() {
+        return containerManager;
+    }
+
+    public boolean isContainerLooted(String containerKey) {
+        return this.so.isContainerLooted(containerKey);
+    }
+
     private final String path;
-    private GameWindow w;
+    private IGameWindow w;
 
     private ScriptOverseer so;
 
@@ -94,8 +103,8 @@ public class Engine {
         return so;
     }
 
-    public void setGameWindow(GameWindow w) { this.w = w; }
-    public GameWindow getGameWindow() { return this.w; }
+    public void setGameWindow(IGameWindow w) { this.w = w; }
+    public IGameWindow getGameWindow() { return this.w; }
 
     public Engine(String path) throws Exception {
         this.path = path;
@@ -298,8 +307,13 @@ public class Engine {
         }
     }
 
-    public void openContainer(String containerName, String containerTop) {
-//        this.containerManager
-        System.out.println(containerName + "\t" + containerTop);
+    public void openContainer(String containerName, String containerTop) throws IOException {
+        this.w.openContainer(containerName, containerTop);
+    }
+
+    public void lootContainer(String containerName) {
+        this.so.lootContainer(containerName);
+        var container = containerManager.get(containerName);
+        player.addItemsFromContainer(container);
     }
 }

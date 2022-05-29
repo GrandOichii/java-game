@@ -17,14 +17,25 @@ public class Inventory {
     }
 
     public void addItem(Item item) {
+        this.addItem(item, 1);
+    }
+
+    public void addItem(Item item, int amount) {
         var itemName = item.getName();
         for (var pair : items) {
             if (pair.getFirst().equals(itemName)) {
-                pair.setSecond(pair.getSecond() + 1);
+                pair.setSecond(pair.getSecond() + amount);
                 return;
             }
         }
-        items.add(new Pair<>(itemName, 1));
+        items.add(new Pair<>(itemName, amount));
+    }
+
+    public void addItemsFromContainer(Container container) {
+        var pairs = container.getAsPairs();
+        for (var pair : pairs) {
+            this.addItem(pair.getFirst(), pair.getSecond());
+        }
     }
 
     public ItemLine[] getAsPrettyList() {
