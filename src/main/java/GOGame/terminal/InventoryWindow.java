@@ -53,7 +53,7 @@ class ItemsSubMenu extends Menu {
         itemList.draw(parent.terminal, parent.x + 2, parent.y + 3, true);
     }
 
-    private Map<KeyType, Runnable> keyMap = new EnumMap<>(KeyType.class){{
+    private final Map<KeyType, Runnable> keyMap = new EnumMap<>(KeyType.class){{
         put(KeyType.ArrowUp, () -> {
             rememberSelected();
             itemList.moveUp();
@@ -87,11 +87,12 @@ class ItemsMenu extends Menu {
 
     public ItemsMenu(TWindow parent, SortedItemLines itemNames) {
         super(parent, "Items");
-        this.menus = new ItemsSubMenu[SortedItemLines.TYPES_COUNT];
-        this.menus[0] = new ItemsSubMenu(parent, "All", itemNames.getAllItems());
-        this.menus[1] = new ItemsSubMenu(parent, "Weapons", itemNames.getWeapons());
-        this.menus[2] = new ItemsSubMenu(parent, "Ammo", itemNames.getAmmo());
-        this.menus[3] = new ItemsSubMenu(parent, "Other", itemNames.getOther());
+        var menus = new ArrayList<ItemsSubMenu>();
+        var tm = itemNames.getItemTypeMap();
+        for (var key : SortedItemLines.ORDERED_TYPES) {
+            menus.add(new ItemsSubMenu(parent, key, tm.get(key)));
+        }
+        this.menus = menus.toArray(new ItemsSubMenu[0]);
     }
 
     public Set<String> getViewedItemNames() {
@@ -113,14 +114,16 @@ class ItemsMenu extends Menu {
         this.menus[menuI].draw();
     }
 
-    private Map<KeyType, Runnable> keyMap = new EnumMap<>(KeyType.class){{
+    private final Map<KeyType, Runnable> keyMap = new EnumMap<>(KeyType.class){{
         put(KeyType.ArrowLeft, () -> {
+            getSelectedSubMenu().rememberSelected();
             menuI--;
             if (menuI < 0) {
                 menuI = menus.length - 1;
             }
         });
         put(KeyType.ArrowRight, () -> {
+            getSelectedSubMenu().rememberSelected();
             menuI++;
             if (menuI >= menus.length) {
                 menuI = 0;

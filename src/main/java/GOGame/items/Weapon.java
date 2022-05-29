@@ -17,4 +17,9 @@ public class Weapon extends EquipableItem {
     private int maxDamage;
     @JsonProperty("range")
     private int range;
+
+    @Override
+    public String getCategory() {
+        return "Weapons";
+    }
 }

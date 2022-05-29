@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
 public abstract class Item {
     private final boolean stackable;
@@ -48,5 +47,7 @@ public abstract class Item {
         result.setUp();
         return result;
     }
+
+    public abstract String getCategory();
 }
 

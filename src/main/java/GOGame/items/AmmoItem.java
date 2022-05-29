@@ -13,4 +13,9 @@ public class AmmoItem extends Item {
     public AmmoItem() {
         super(true);
     }
+
+    @Override
+    public String getCategory() {
+        return "Ammo";
+    }
 }
