@@ -148,17 +148,25 @@ class MapData:
 
 class ClassesData:
     def __init__(self):
-        self.classes = {'Warrior':{}}
+        # TODO
+        self.classes = [
+            {
+                'name': 'Warrior'
+            },
+            {
+                'name': 'Mage'
+            },
+            {
+                'name': 'Rogue'
+            },
+        ]
 
     def to_json(self):
-        result = []
-        for name, c in enumerate(self.classes):
-            ob = {}
-            ob['name'] = name
-            result += [ob]
-        return result
+        # TODO
+        return self.classes
 
     def load(self, data: dict):
+        # TODO
         self.classes = data
 
 class GameInfoData:

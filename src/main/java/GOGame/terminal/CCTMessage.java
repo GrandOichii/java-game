@@ -1,17 +1,15 @@
 package GOGame.terminal;
 
-import GOGame.Utility;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CCTMessage implements DrawableAsLine{
+public class CCTMessage implements IDrawableAsLine {
     static final String colorMatchRegex = "\\$\\{([\\w|-]+)\\}([^\\$]*)";
     static final Pattern colorPattern = Pattern.compile(colorMatchRegex);
 
@@ -58,10 +56,6 @@ public class CCTMessage implements DrawableAsLine{
         this.drawLine(t, x, y, reverseColor);
     }
 
-    public int foo() {
-        return fgColors.get(0).getGreen();
-    }
-
     @Override
     public void drawLine(Terminal t, int x, int y, boolean reverseColor) {
         int offset = 0;
@@ -83,5 +77,14 @@ public class CCTMessage implements DrawableAsLine{
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String toString() {
+        var result = "";
+        for (var message : messages) {
+            result += message;
+        }
+        return result;
     }
 }

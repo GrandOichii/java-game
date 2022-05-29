@@ -4,13 +4,21 @@ import GOGame.Engine;
 import GOGame.Pair;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Inventory {
+
+    private static final String NEW_ITEM_PREFIX = "${green}[NEW]${normal} ";
     private final Engine e;
     private Engine engine;
 
     private final List<Pair<String, Integer>> items = new ArrayList<>();
+    private final Set<String> knownItemNames = new HashSet<>();
+    public void addViewedItemNames(Set<String> names) {
+        knownItemNames.addAll(names);
+    }
 
     public Inventory(Engine engine) {
         this.e = engine;
@@ -43,9 +51,14 @@ public class Inventory {
         var itemManager = e.getItemManager();
         for (var pair : items) {
             var item = itemManager.get(pair.getFirst());
-            var displayName = item.getDisplayName();
-            var name = item.getName();
+            var name = item.name;
             var amount = pair.getSecond();
+            var prefix = "";
+            if (!knownItemNames.contains(item.name)) {
+                prefix = NEW_ITEM_PREFIX;
+            }
+            var displayName = prefix + item.displayName;
+
             if (item.isStackable()) {
                 result.add(new ItemLine(name, displayName, amount));
                 continue;

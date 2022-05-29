@@ -1,11 +1,11 @@
 [
     {
-        "name": 0
+        "name": "Warrior"
     },
     {
-        "name": 1
+        "name": "Mage"
     },
     {
-        "name": 2
+        "name": "Rogue"
     }
 ]

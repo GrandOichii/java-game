@@ -14,6 +14,8 @@ import com.googlecode.lanterna.terminal.Terminal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class InventoryWindow {
     private Engine game;
@@ -21,12 +23,10 @@ public class InventoryWindow {
     private Terminal terminal;
     private final Player player;
     private ListTemplate itemList;
-
     private static final int WINDOW_OFFSET_X = 2;
     private static final int WINDOW_OFFSET_Y = 2;
     private static final CCTMessage WINDOW_TOP_MESSAGE = new CCTMessage("${orange}Inventory");
     private static final String[] TAB_NAMES = new String[]{"Items", "Equipment", "Spells"};
-//    private static final int[] MENU_INDEXES = new int[] {0, 0, 0};
     private Runnable[] tabDrawMap = new Runnable[]{
         () -> {
             itemList.draw(terminal, WINDOW_OFFSET_X + 2, WINDOW_OFFSET_Y + 3, true);
@@ -51,7 +51,7 @@ public class InventoryWindow {
         this.g = g;
         this.itemNames = this.player.getInventory().getAsPrettyList();
 
-        var lines = new ArrayList<DrawableAsLine>();
+        var lines = new ArrayList<IDrawableAsLine>();
         for (var itemName : itemNames) {
             lines.add(new CCTMessage("${white-black}" + itemName));
         }
@@ -68,6 +68,7 @@ public class InventoryWindow {
 
     private Runnable[] arrowUpMap = new Runnable[]{
             () -> {
+                rememberSelected();
                 itemList.moveUp();
             },
             () -> {
@@ -78,8 +79,21 @@ public class InventoryWindow {
             }
     };
 
+    private final Set<String> viewedItemNames = new HashSet<>();
+
+    public Set<String> getViewedItemNames() {
+        return viewedItemNames;
+    }
+
+    private void rememberSelected() {
+        var i = itemList.getChoice();
+        var itemName = itemNames[i].getName();
+        viewedItemNames.add(itemName);
+    }
+
     private Runnable[] arrowDownMap = new Runnable[]{
             () -> {
+                rememberSelected();
                 itemList.moveDown();
             },
             () -> {
@@ -116,7 +130,10 @@ public class InventoryWindow {
                 tabI = 0;
             }
         });
-        put(KeyType.Escape, () -> running = false);
+        put(KeyType.Escape, () -> {
+            rememberSelected();
+            running = false;
+        });
         put(KeyType.ArrowDown, () -> arrowDownMap[tabI].run());
         put(KeyType.ArrowUp, () -> arrowUpMap[tabI].run());
         put(KeyType.Enter, () -> enterMap[tabI].run());

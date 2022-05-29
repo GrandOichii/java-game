@@ -578,7 +578,10 @@ public class TerminalWindow implements IGameWindow {
     }
 
     private void openInventory() throws IOException {
-        new InventoryWindow(terminal, graphics, game).show();
+        var w = new InventoryWindow(terminal, graphics, game);
+        w.show();
+        var viewItemNames = w.getViewedItemNames();
+        game.getPlayer().getInventory().addViewedItemNames(viewItemNames);
     }
 
     private void interact() {

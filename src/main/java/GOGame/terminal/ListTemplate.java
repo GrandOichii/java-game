@@ -5,7 +5,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 import java.util.ArrayList;
 
 public class ListTemplate {
-    private ArrayList<DrawableAsLine> items;
+    private ArrayList<IDrawableAsLine> items;
     private int maxDisplayAmount;
     private int cursor;
     private int choice;
@@ -14,9 +14,13 @@ public class ListTemplate {
         return choice;
     }
 
+    public String getSelected() {
+        return items.get(choice).toString();
+    }
+
     private int page;
 
-    public ListTemplate(ArrayList<DrawableAsLine> items, int maxDisplayAmount) {
+    public ListTemplate(ArrayList<IDrawableAsLine> items, int maxDisplayAmount) {
         this.items = items;
         this.maxDisplayAmount = maxDisplayAmount;
         this.choice = 0;
@@ -32,7 +36,7 @@ public class ListTemplate {
         }
     }
 
-    public void addItem(DrawableAsLine item) {
+    public void addItem(IDrawableAsLine item) {
         items.add(item);
     }
 
