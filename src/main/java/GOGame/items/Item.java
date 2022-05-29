@@ -49,5 +49,17 @@ public abstract class Item {
     }
 
     public abstract String getCategory();
+
+    public String getBigDescription(int amount) {
+        var result = displayName;
+        if (amount != -1) {
+            result += String.format(" (x %d)", amount);
+        }
+        result += "\n\n" + additionalDescriptionInfo();
+        result += description;
+        return result;
+    }
+
+    protected abstract String additionalDescriptionInfo();
 }
 

@@ -5,6 +5,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -49,4 +50,26 @@ public class Utility {
 
         return new String[]{file.getPath(), fileName, ext};
     }
+
+    public static String[] StringWidthSplit(String text, int maxWidth) {
+        var lines = new ArrayList<String>();
+        var newLineSplit = text.split("\n");
+        for (var subText : newLineSplit) {
+            var split = subText.split(" ");
+            var line = split[0];
+            for (int i = 1; i < split.length; i++) {
+                var word = split[i];
+                if ((line + " " + word).length() > maxWidth) {
+                    lines.add(line);
+                    line = word;
+                }
+                else {
+                    line += " " + word;
+                }
+            }
+            lines.add(line);
+        }
+        return lines.toArray(new String[0]);
+    }
+
 }

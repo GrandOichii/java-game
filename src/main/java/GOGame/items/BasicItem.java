@@ -10,4 +10,9 @@ public class BasicItem extends Item {
     public String getCategory() {
          return "Other";
     }
+
+    @Override
+    protected String additionalDescriptionInfo() {
+        return "";
+    }
 }

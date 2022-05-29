@@ -68,7 +68,7 @@ public abstract class TWindow {
         }
     }
 
-    private void drawBorder() throws IOException {
+    private void drawBorder() {
         g.enableModifiers(SGR.BOLD);
         g.setForegroundColor(borderColor.getFirst());
         g.setBackgroundColor(borderColor.getSecond());
@@ -91,6 +91,7 @@ public abstract class TWindow {
             var key = terminal.readInput();
             this.handleInput(key);
         }
+        this.clear();
     }
 
     protected abstract void draw();

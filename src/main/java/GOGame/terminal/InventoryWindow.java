@@ -34,8 +34,7 @@ abstract class Menu {
 }
 
 class ItemsSubMenu extends Menu {
-
-    private final ItemLine[] itemNames;
+    private ItemLine[] itemNames;
     private ListTemplate itemList;
 
     public ItemsSubMenu(TWindow parent, String title, ItemLine[] items) {
@@ -61,6 +60,15 @@ class ItemsSubMenu extends Menu {
         put(KeyType.ArrowDown, () -> {
             rememberSelected();
             itemList.moveDown();
+        });
+        put(KeyType.Enter, () -> {
+            var i = itemList.getChoice();
+            var line = itemNames[i];
+            try {
+                new ItemDescriptionWindow(parent.terminal, parent.g, line).show();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
     }};
 

@@ -10,7 +10,7 @@ enum DamageType {
     }
 }
 
-public class Weapon extends EquipableItem {
+public abstract class Weapon extends EquipableItem {
     @JsonProperty("minDamage")
     private int minDamage;
     @JsonProperty("maxDamage")
@@ -21,5 +21,12 @@ public class Weapon extends EquipableItem {
     @Override
     public String getCategory() {
         return "Weapons";
+    }
+
+    @Override
+    protected String additionalDescriptionInfo() {
+        var result = "";
+        result += String.format("Damage: %d-%d  Range:%d\n\n", minDamage, maxDamage, range);
+        return result;
     }
 }

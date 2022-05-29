@@ -18,4 +18,11 @@ public class AmmoItem extends Item {
     public String getCategory() {
         return "Ammo";
     }
+
+    @Override
+    protected String additionalDescriptionInfo() {
+        var result = "";
+        result += String.format("Ammo type: %s\nDamage: %d  Type: %s\n\n", this.ammoType, this.damage, this.damageType);
+        return result;
+    }
 }

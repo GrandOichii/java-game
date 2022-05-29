@@ -3,6 +3,11 @@ package GOGame.items;
 public class ItemLine {
     private Item item;
     private int amount;
+
+    public int getAmount() {
+        return amount;
+    }
+
     private String displayName;
     public Item getItem() {
         return item;
