@@ -1,21 +1,19 @@
 package GOGame.items;
 
 public class ItemLine {
-    private final String name;
-    private final String displayName;
-
-    public String getName() {
-        return name;
+    private Item item;
+    private int amount;
+    private String displayName;
+    public Item getItem() {
+        return item;
     }
 
-    private final int amount;
-
-    public ItemLine(String name, String displayName) {
-        this(name, displayName, -1);
+    public ItemLine(Item item, String displayName) {
+        this(item, displayName, -1);
     }
 
-    public ItemLine(String name, String displayName, int amount) {
-        this.name = name;
+    public ItemLine(Item item, String displayName, int amount) {
+        this.item = item;
         this.displayName = displayName;
         this.amount = amount;
     }

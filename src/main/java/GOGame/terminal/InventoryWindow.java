@@ -3,6 +3,7 @@ package GOGame.terminal;
 import GOGame.Engine;
 import GOGame.items.ItemDescriptionWindow;
 import GOGame.items.ItemLine;
+import GOGame.items.SortedItemLines;
 import GOGame.player.Player;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
@@ -14,6 +15,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.IOException;
 import java.util.*;
+
 
 abstract class Menu {
     private final CCTMessage title;
@@ -31,20 +33,19 @@ abstract class Menu {
     abstract void handleInput(KeyStroke key);
 }
 
-class ItemsMenu extends Menu {
-    private ItemLine[] itemNames;
+class ItemsSubMenu extends Menu {
+
+    private final ItemLine[] itemNames;
     private ListTemplate itemList;
-    private final Set<String> viewedItemNames = new HashSet<>();
 
-
-    public ItemsMenu(TWindow parent, ItemLine[] itemNames, ListTemplate itemList) {
-        super(parent, "Items");
-        this.itemNames = itemNames;
-        this.itemList = itemList;
-    }
-
-    public Set<String> getViewedItemNames() {
-        return this.viewedItemNames;
+    public ItemsSubMenu(TWindow parent, String title, ItemLine[] items) {
+        super(parent, title);
+        this.itemNames = items;
+        var lines = new ArrayList<IDrawableAsLine>();
+        for (var itemName : itemNames) {
+            lines.add(new CCTMessage("${white-black}" + itemName));
+        }
+        this.itemList = new ListTemplate(lines, parent.getHeight() - 4);
     }
 
     @Override
@@ -66,15 +67,79 @@ class ItemsMenu extends Menu {
     @Override
     void handleInput(KeyStroke key) {
         var kt = key.getKeyType();
-        if (keyMap.containsKey(kt)) {
-            keyMap.get(kt).run();
+        if (!keyMap.containsKey(kt)) {
+            return;
         }
+        keyMap.get(kt).run();
     }
 
-    private void rememberSelected() {
+    public void rememberSelected() {
         var i = itemList.getChoice();
-        var itemName = itemNames[i].getName();
-        viewedItemNames.add(itemName);
+        var itemName = itemNames[i].getItem().getName();
+        ((InventoryWindow)(parent)).getViewedItemNames().add(itemName);
+    }
+}
+
+class ItemsMenu extends Menu {
+    private final Set<String> viewedItemNames = new HashSet<>();
+    private ItemsSubMenu[] menus;
+    private int menuI;
+
+    public ItemsMenu(TWindow parent, SortedItemLines itemNames) {
+        super(parent, "Items");
+        this.menus = new ItemsSubMenu[SortedItemLines.TYPES_COUNT];
+        this.menus[0] = new ItemsSubMenu(parent, "All", itemNames.getAllItems());
+        this.menus[1] = new ItemsSubMenu(parent, "Weapons", itemNames.getWeapons());
+        this.menus[2] = new ItemsSubMenu(parent, "Ammo", itemNames.getAmmo());
+        this.menus[3] = new ItemsSubMenu(parent, "Other", itemNames.getOther());
+    }
+
+    public Set<String> getViewedItemNames() {
+        return this.viewedItemNames;
+    }
+
+    @Override
+    void draw() {
+        var y = this.parent.y + 2;
+        var x = this.parent.x + 1;
+        parent.g.drawLine(x, y, x + this.parent.getWidth() - 3, y, '-');
+        for (int i = 0; i < menus.length; i++) {
+            var menuTitle = menus[i].getTitle();
+            var line = "-<" + "-".repeat(menuTitle.length()) + ">-";
+            TerminalUtility.putAt(parent.terminal, x, y, line);
+            menuTitle.draw(parent.terminal, x + 2, y, i == menuI);
+            x += line.length();
+        }
+        this.menus[menuI].draw();
+    }
+
+    private Map<KeyType, Runnable> keyMap = new EnumMap<>(KeyType.class){{
+        put(KeyType.ArrowLeft, () -> {
+            menuI--;
+            if (menuI < 0) {
+                menuI = menus.length - 1;
+            }
+        });
+        put(KeyType.ArrowRight, () -> {
+            menuI++;
+            if (menuI >= menus.length) {
+                menuI = 0;
+            }
+        });
+    }};
+
+    @Override
+    void handleInput(KeyStroke key) {
+        var kt = key.getKeyType();
+        if (keyMap.containsKey(kt)) {
+            keyMap.get(kt).run();
+            return;
+        }
+        this.menus[menuI].handleInput(key);
+    }
+
+    public ItemsSubMenu getSelectedSubMenu() {
+        return this.menus[menuI];
     }
 }
 
@@ -89,17 +154,10 @@ public class InventoryWindow extends TWindow {
     public InventoryWindow(Terminal terminal, TextGraphics g, Engine game) {
         super(terminal, g, WINDOW_WIDTH, WINDOW_HEIGHT, 2, 2);
         this.setTitle("${orange}Inventory");
-//        this.game = game;
-
-        var lines = new ArrayList<IDrawableAsLine>();
-        var itemNames = game.getPlayer().getInventory().getAsPrettyList();
-        for (var itemName : itemNames) {
-            lines.add(new CCTMessage("${white-black}" + itemName));
-        }
-        var itemList = new ListTemplate(lines, WINDOW_HEIGHT - 4);
+        var items = game.getPlayer().getInventory().getAsPrettyList();
 
         menus = new Menu[]{
-            new ItemsMenu(this, itemNames, itemList)
+            new ItemsMenu(this, items)
         };
     }
 
@@ -127,7 +185,10 @@ public class InventoryWindow extends TWindow {
     }
 
     final Map<KeyType, Runnable> keyMap = new HashMap<>(){{
-        put(KeyType.Escape, () -> close());
+        put(KeyType.Escape, () -> {
+            ((ItemsMenu)menus[0]).getSelectedSubMenu().rememberSelected();
+            close();
+        });
         put(KeyType.Tab, () -> {
             menuI++;
             if (menuI >= menus.length) {

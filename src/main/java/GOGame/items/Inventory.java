@@ -46,12 +46,11 @@ public class Inventory {
         }
     }
 
-    public ItemLine[] getAsPrettyList() {
-        var result = new ArrayList<ItemLine>();
+    public SortedItemLines getAsPrettyList() {
+        var lines = new ArrayList<ItemLine>();
         var itemManager = e.getItemManager();
         for (var pair : items) {
             var item = itemManager.get(pair.getFirst());
-            var name = item.name;
             var amount = pair.getSecond();
             var prefix = "";
             if (!knownItemNames.contains(item.name)) {
@@ -60,13 +59,13 @@ public class Inventory {
             var displayName = prefix + item.displayName;
 
             if (item.isStackable()) {
-                result.add(new ItemLine(name, displayName, amount));
+                lines.add(new ItemLine(item, displayName, amount));
                 continue;
             }
             for (int i = 0; i < amount; i++) {
-                result.add(new ItemLine(name, displayName));
+                lines.add(new ItemLine(item, displayName));
             }
         }
-        return result.toArray(new ItemLine[0]);
+        return new SortedItemLines(lines.toArray(new ItemLine[0]));
     }
 }

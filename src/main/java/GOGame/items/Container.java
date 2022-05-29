@@ -31,7 +31,7 @@ public class Container {
         for (int i = 0; i < size; i++) {
             var pair = pairs.get(i);
             var item = pair.getFirst();
-            result[i] = new ItemLine(item.name, item.displayName, pair.getSecond());
+            result[i] = new ItemLine(item, item.displayName, pair.getSecond());
         }
         return result;
     }

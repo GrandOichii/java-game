@@ -255,9 +255,6 @@ public class TerminalWindow implements IGameWindow {
         createCharacterPanel.addComponent(new Label("Class:"));
         final ComboBox<String> classBox = new ComboBox<>();
         var classes = this.game.getClassTemplates();
-//        for (int i = classes.length - 1; i >= 0; i--) {
-//            classBox.addItem(classes[i].getName());
-//        }
         for (var pClass : classes) {
             classBox.addItem(pClass.getName());
         }
