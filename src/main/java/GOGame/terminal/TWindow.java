@@ -1,6 +1,7 @@
 package GOGame.terminal;
 
 import GOGame.Pair;
+import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
@@ -68,6 +69,7 @@ public abstract class TWindow {
     }
 
     private void drawBorder() throws IOException {
+        g.enableModifiers(SGR.BOLD);
         g.setForegroundColor(borderColor.getFirst());
         g.setBackgroundColor(borderColor.getSecond());
         g.drawRectangle(new TerminalPosition(x, y), new TerminalSize(width, height), '*');
@@ -76,6 +78,7 @@ public abstract class TWindow {
         if (this.title != null) {
             title.draw(terminal, x + 1, y);
         }
+        g.disableModifiers(SGR.BOLD);
     }
 
     public void show() throws IOException {

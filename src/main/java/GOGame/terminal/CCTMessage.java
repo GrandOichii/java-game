@@ -42,11 +42,7 @@ public class CCTMessage implements IDrawableAsLine {
     }
 
     public int length() {
-        var result = 0;
-        for (var m : messages) {
-            result += m.length();
-        }
-        return result;
+        return toString().length();
     }
 
     public void draw(Terminal t, int x, int y) {
