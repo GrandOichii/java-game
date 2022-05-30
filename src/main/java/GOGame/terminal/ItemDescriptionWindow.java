@@ -5,6 +5,7 @@ import GOGame.Utility;
 import GOGame.terminal.CCTMessage;
 import GOGame.terminal.TWindow;
 import GOGame.terminal.TerminalUtility;
+import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
@@ -31,10 +32,12 @@ public class ItemDescriptionWindow extends TWindow {
     private static final int MAX_DESCRIPTION_WIDTH = 60;
 
     private final SideButton[] sideButtons;
+    private final int separatorX;
+    private int buttonI = 0;
     private final String descriptionLines[];
 
     public ItemDescriptionWindow(Terminal terminal, TextGraphics g, ItemLine line) {
-        super(terminal, g, 0, 0, 8, 4);
+        super(terminal, g, 0, 0, 3, 3);
         var item = line.getItem();
         this.setTitle("${cyan}" + item.getDisplayName());
         this.setBorderColor("cyan");
@@ -55,6 +58,7 @@ public class ItemDescriptionWindow extends TWindow {
             }
         }
         this.setWidth(2 + MAX_DESCRIPTION_WIDTH + 3 + maxLength + 2);
+        this.separatorX = 2 + MAX_DESCRIPTION_WIDTH + 2;
         this.setHeight(2 + descriptionLines.length + 2);
     }
 
@@ -64,6 +68,9 @@ public class ItemDescriptionWindow extends TWindow {
         for (int i = 0; i < descriptionLines.length; i++) {
             TerminalUtility.putAt(terminal, x + 2, y + 2 + i, descriptionLines[i]);
         }
+//        draw separator
+
+        g.drawLine(new TerminalPosition(x + separatorX, y), new TerminalPosition(x + separatorX, y + getHeight() - 1), '*');
     }
 
     private final Map<KeyType, Runnable> keyMap = new HashMap<>(){{

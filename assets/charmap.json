@@ -1,31 +1,33 @@
 {
     "templates": {
         "wall": "#",
+        "sign": "!",
+        "chest": "${yellow}C",
+        "door": "+",
+        "button": "o",
         "floor": ".",
         "portal": "${blue}O",
-        "door": "+",
-        "orangeMan": "${orange}@",
-        "sign": "!",
-        "chest": "${yellow}C"
+        "man": "${orange}@"
     },
     "tiles": {
-        "index:floor": "floor",
         "index:wall": "wall",
-        "index:secret_sign": "sign", 
+        "index:floor": "floor",
         "index:chests_sign": "sign",
-        "index:filthy_man": "orangeMan",
-        "index:door": "door",
-        "index:portal1": "portal",
-        "index:portal2": "portal",
-        "index:portal1_floor": "floor",
-        "index:portal2_floor": "floor",
         "index:chest1": "chest",
         "index:chest2": "chest",
         "index:chest3": "chest",
         "index:chest4": "chest",
         "index:chest5": "chest",
+        "index:door": "door",
+        "index:button": "button",
         "index:chest6": "chest",
         "index:chest7": "chest",
-        "index:chest8": "chest"
+        "index:chest8": "chest",
+        "index:secret_sign": "sign",
+        "index:portal1": "portal",
+        "index:portal2": "portal",
+        "index:portal1_floor": "floor",
+        "index:portal2_floor": "floor",
+        "index:filthy_man": "man"
     }
 }
