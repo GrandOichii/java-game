@@ -88,7 +88,7 @@ class ItemsMenu extends Menu {
         super(parent, "Items");
         var menus = new ArrayList<ItemsSubMenu>();
         var tm = itemNames.getItemTypeMap();
-        for (var key : SortedItemLines.ORDERED_TYPES) {
+        for (var key : tm.keySet()) {
             menus.add(new ItemsSubMenu(parent, key, tm.get(key)));
         }
         this.menus = menus.toArray(new ItemsSubMenu[0]);

@@ -1,6 +1,7 @@
 package GOGame.player;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 public class AttributeManager {
@@ -11,4 +12,10 @@ public class AttributeManager {
     }};
 
     public int getBase(Attribute name) { return baseValues.get(name); }
+
+    public void setBase(HashMap<Attribute, Integer> attributeMap) {
+        for (var key : attributeMap.keySet()) {
+            this.baseValues.put(key, attributeMap.get(key));
+        }
+    }
 }

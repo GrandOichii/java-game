@@ -158,8 +158,11 @@ class ClassData:
 
     def to_json(self):
         result = {}
-        for key in ['name', 'description'] + ATTRIBUTES:
+        for key in ['name', 'description']:
             result[key] = self.__dict__[key]
+        result['attributes'] = {}
+        for key in ATTRIBUTES:
+            result['attributes']['key'] = self.__dict__[key]
         result['items'] = {}
         for item in self.items:
             result['items'][item.name] = item.amount
@@ -167,8 +170,10 @@ class ClassData:
 
     def load(data: dict) -> 'ClassData':
         result = ClassData()
-        for key in ['name', 'description'] + ATTRIBUTES:
+        for key in ['name', 'description']:
             result.__dict__[key] = data[key]
+        for key in ATTRIBUTES:
+            result.__dict__[key] = data['attributes'][key]
         for name, amount in data['items'].items():
             item = ContainerItem()
             item.name = name

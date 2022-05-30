@@ -7,9 +7,13 @@ import GOGame.items.Item;
 
 public class Player {
     private final String name;
-    private final String className;
+    private String className;
     private final Inventory inventory;
     private final AttributeManager attributes;
+
+    public AttributeManager getAttributes() {
+        return attributes;
+    }
 
     public Inventory getInventory() {
         return inventory;
@@ -21,9 +25,22 @@ public class Player {
 
     public Player(Engine engine, String name, PlayerClass pClass) {
         this.name = name;
-        this.className = pClass.getName();
         this.inventory = new Inventory(engine);
         this.attributes = new AttributeManager();
+
+        this.injectClassData(engine, pClass);
+    }
+
+    private void injectClassData(Engine engine, PlayerClass pClass) {
+        this.className = pClass.getName();
+        var items = pClass.getItems();
+        var itemManager = engine.getItemManager();
+        for (var itemName : items.keySet()) {
+            var amount = items.get(itemName);
+            var item = itemManager.get(itemName);
+            this.inventory.addItem(item, amount);
+        }
+        attributes.setBase(pClass.getAttributes());
     }
 
     public String getName() {

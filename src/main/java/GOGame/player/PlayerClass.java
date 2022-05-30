@@ -8,13 +8,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class PlayerClass {
     @JsonProperty("name")
     private String name;
     @JsonProperty("description")
     private String description;
+    @JsonProperty("items")
+    private HashMap<String, Integer> items;
 
+    public HashMap<String, Integer> getItems() {
+        return items;
+    }
+
+    @JsonProperty("attributes")
+    private HashMap<Attribute, Integer> attributes;
+
+    public HashMap<Attribute, Integer> getAttributes() {
+        return attributes;
+    }
 
     public String getName() {
         return name;
@@ -27,7 +40,6 @@ public class PlayerClass {
     public static PlayerClass[] loadClasses(File file) throws IOException {
         var text = Utility.readFile(file);
         ObjectMapper mapper = new ObjectMapper();
-        var result = mapper.readValue(text, new TypeReference<PlayerClass[]>() { });
-        return result;
+        return mapper.readValue(text, new TypeReference<>() { });
     }
 }

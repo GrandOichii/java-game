@@ -124,14 +124,6 @@ public class Engine {
         this.containerManager = ContainerManager.load(this, fileMap.get(CONTAINERS_FILE));
     }
 
-    public String extractStringData() {
-        var result = "== Game info ==\n";
-        result += "Game name: ${cyan}" + this.gi.getName() + "${normal}\n";
-        result += "Map info:\n";
-        result += this.map.extractStringData();
-        return result;
-    }
-
     public Path getSavesDir() {
         return Path.of(this.path, SAVES_DIR);
     }
@@ -158,6 +150,8 @@ public class Engine {
 
     public void createAndLoadCharacter(String name, PlayerClass pClass) {
         this.player = new Player(this, name, pClass);
+//        REMOVE
+        so.injectPlayerData(this.player);
         this.save();
         var saveFile = getCurrentSaveFile();
         loadCharacter(saveFile);
