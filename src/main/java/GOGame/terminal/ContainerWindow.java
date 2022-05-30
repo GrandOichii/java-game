@@ -47,7 +47,6 @@ public class ContainerWindow extends TWindow {
 
     @Override
     protected void draw() {
-        g.enableModifiers(SGR.BOLD);
 //        draw item lines
         for (int i = 0; i < itemLines.length; i++) {
             TerminalUtility.putAt(terminal, x + 2, y + 2 + i, itemLines[i]);
@@ -65,8 +64,6 @@ public class ContainerWindow extends TWindow {
         LOOT_BUTTON.draw(terminal, x, y, lootFocused);
         x += LOOT_BUTTON.length() + 1;
         CANCEL_BUTTON.draw(terminal, x, y, !lootFocused);
-        g.disableModifiers(SGR.BOLD);
-
     }
 
     private final HashMap<KeyType, Runnable> keyMap = new HashMap<>(){{

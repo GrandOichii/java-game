@@ -1,11 +1,38 @@
 [
     {
-        "name": 0
+        "name": "Warrior",
+        "description": "",
+        "VIT": 10,
+        "STR": 10,
+        "AGI": 10,
+        "INT": 10,
+        "WIS": 10,
+        "LUC": 10,
+        "items": {}
     },
     {
-        "name": 1
+        "name": "Mage",
+        "description": "",
+        "VIT": 10,
+        "STR": 10,
+        "AGI": 10,
+        "INT": 10,
+        "WIS": 10,
+        "LUC": 10,
+        "items": {}
     },
     {
-        "name": 2
+        "name": "Rogue",
+        "description": "THis is the description of the custom class.",
+        "VIT": 20,
+        "STR": 20,
+        "AGI": 20,
+        "INT": 20,
+        "WIS": 20,
+        "LUC": 20,
+        "items": {
+            "wooden_arrow": 20,
+            "wooden_bow": 1
+        }
     }
 ]

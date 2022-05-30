@@ -222,7 +222,7 @@ class ContainerEditorWindow(QDialog):
         if not ok:
             return
         self.items += [item]
-        self.items_list.addItem(item.name)
+        self.items_list.addItem(item.name + ' x ' + item.amount)
 
     def delete_action(self):
         si = self.items_list.selectedIndexes()
@@ -242,7 +242,7 @@ class ContainerEditorWindow(QDialog):
             return
         self.items[i] = item
         sel = self.items_list.selectedItems()[0]
-        sel.setText(item.name)
+        sel.setText(item.name + ' x ' + item.amount)
 
     def cancel_action(self):
         self.ok = False

@@ -146,28 +146,35 @@ class MapData:
         self.start_y = data['startY']
         self.start_x = data['startX']
 
-class ClassesData:
+ATTRIBUTES = ['VIT', 'STR', 'AGI', 'INT', 'WIS', 'LUC']
+
+class ClassData:
     def __init__(self):
-        # TODO
-        self.classes = [
-            {
-                'name': 'Warrior'
-            },
-            {
-                'name': 'Mage'
-            },
-            {
-                'name': 'Rogue'
-            },
-        ]
+        self.name: str = ''
+        self.description: str = ''
+        for key in ATTRIBUTES:
+            self.__dict__[key] = 0
+        self.items: list[ContainerItem] = []
 
     def to_json(self):
-        # TODO
-        return self.classes
+        result = {}
+        for key in ['name', 'description'] + ATTRIBUTES:
+            result[key] = self.__dict__[key]
+        result['items'] = {}
+        for item in self.items:
+            result['items'][item.name] = item.amount
+        return result
 
-    def load(self, data: dict):
-        # TODO
-        self.classes = data
+    def load(data: dict) -> 'ClassData':
+        result = ClassData()
+        for key in ['name', 'description'] + ATTRIBUTES:
+            result.__dict__[key] = data[key]
+        for name, amount in data['items'].items():
+            item = ContainerItem()
+            item.name = name
+            item.amount = amount
+            result.items += [item]
+        return result
 
 class GameInfoData:
     def __init__(self):
@@ -472,8 +479,8 @@ class GameObject:
         self.gi.name = name
         # map data
         self.md = MapData()
-        # classes data
-        self.cs = ClassesData()
+        # classes
+        self.classes: list[ClassData] = []
         # rooms
         self.rooms: list[RoomData] = []
         # items
@@ -495,7 +502,6 @@ class GameObject:
                 raise Exception(f'required file {f} not found in game directory')
         load_map = {
             GAME_INFO_FILE: result.gi,
-            CLASSES_FILE: result.cs
         }
         for key, value in load_map.items():
             with open(os.path.join(path, key), 'r') as f:
@@ -543,6 +549,12 @@ class GameObject:
                     item.amount = amount
                     container.items += [item]
                 result.containers += [container]
+        # load the classes
+        with open(os.path.join(path, CLASSES_FILE), 'r') as f:
+            data = json.loads(f.read())
+            result.classes = []
+            for c in data:
+                result.classes += [ClassData.load(c)]
         if GAME_CREATOR_FILE in rf['files']:
             with open(os.path.join(path, GAME_CREATOR_FILE), 'r') as f:
                 gcd = json.loads(f.read())
@@ -597,7 +609,6 @@ class GameObject:
         rfm = {
             MAP_DATA_FILE: self.md,
             GAME_INFO_FILE: self.gi,
-            CLASSES_FILE: self.cs
         }
         path_to_game = os.path.join(dir, self.gi.name)
         shutil.rmtree(path_to_game, ignore_errors=True)
@@ -632,6 +643,12 @@ class GameObject:
                 for item in container.items:
                     _is[item.name] = item.amount
                 data[container.key] = _is
+            f.write(json.dumps(data, indent=4))
+        # save classes
+        with open(os.path.join(path_to_game, CLASSES_FILE), 'w') as f:
+            data = []
+            for c in self.classes:
+                data += [c.to_json()]
             f.write(json.dumps(data, indent=4))
         # save game creator data
         gcd = {}

@@ -1,13 +1,8 @@
 package GOGame.terminal;
 
 import GOGame.Engine;
-import GOGame.items.ItemDescriptionWindow;
 import GOGame.items.ItemLine;
 import GOGame.items.SortedItemLines;
-import GOGame.player.Player;
-import com.googlecode.lanterna.SGR;
-import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
@@ -53,15 +48,10 @@ class ItemsSubMenu extends Menu {
     }
 
     private final Map<KeyType, Runnable> keyMap = new EnumMap<>(KeyType.class){{
-        put(KeyType.ArrowUp, () -> {
-            rememberSelected();
-            itemList.moveUp();
-        });
-        put(KeyType.ArrowDown, () -> {
-            rememberSelected();
-            itemList.moveDown();
-        });
+        put(KeyType.ArrowUp, () -> itemList.moveUp());
+        put(KeyType.ArrowDown, () -> itemList.moveDown());
         put(KeyType.Enter, () -> {
+            rememberSelected();
             var i = itemList.getChoice();
             var line = itemNames[i];
             try {
@@ -83,7 +73,8 @@ class ItemsSubMenu extends Menu {
 
     public void rememberSelected() {
         var i = itemList.getChoice();
-        var itemName = itemNames[i].getItem().getName();
+        var line = itemNames[i];
+        var itemName = line.getItem().getName();
         ((InventoryWindow)(parent)).getViewedItemNames().add(itemName);
     }
 }
@@ -124,14 +115,12 @@ class ItemsMenu extends Menu {
 
     private final Map<KeyType, Runnable> keyMap = new EnumMap<>(KeyType.class){{
         put(KeyType.ArrowLeft, () -> {
-            getSelectedSubMenu().rememberSelected();
             menuI--;
             if (menuI < 0) {
                 menuI = menus.length - 1;
             }
         });
         put(KeyType.ArrowRight, () -> {
-            getSelectedSubMenu().rememberSelected();
             menuI++;
             if (menuI >= menus.length) {
                 menuI = 0;
@@ -165,6 +154,7 @@ public class InventoryWindow extends TWindow {
     public InventoryWindow(Terminal terminal, TextGraphics g, Engine game) {
         super(terminal, g, WINDOW_WIDTH, WINDOW_HEIGHT, 2, 2);
         this.setTitle("${orange}Inventory");
+        this.setBorderColor("orange");
         var items = game.getPlayer().getInventory().getAsPrettyList();
 
         menus = new Menu[]{
@@ -178,7 +168,6 @@ public class InventoryWindow extends TWindow {
 
     @Override
     protected void draw() {
-        g.enableModifiers(SGR.BOLD);
 //        draw head
         var y = this.y + 1;
         var x = this.x + 1;
@@ -192,14 +181,10 @@ public class InventoryWindow extends TWindow {
         }
 //        draw menu
         this.menus[menuI].draw();
-        g.disableModifiers(SGR.BOLD);
     }
 
     final Map<KeyType, Runnable> keyMap = new HashMap<>(){{
-        put(KeyType.Escape, () -> {
-            ((ItemsMenu)menus[0]).getSelectedSubMenu().rememberSelected();
-            close();
-        });
+        put(KeyType.Escape, () -> close());
         put(KeyType.Tab, () -> {
             menuI++;
             if (menuI >= menus.length) {

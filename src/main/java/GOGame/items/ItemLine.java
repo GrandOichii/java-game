@@ -9,6 +9,11 @@ public class ItemLine {
     }
 
     private String displayName;
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
     public Item getItem() {
         return item;
     }

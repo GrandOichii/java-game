@@ -1096,40 +1096,6 @@ TRANSPARENT_LABEL_STYLE_SHEET = LABEL_STYLE_SHEET
 TRANSPARENT_CHECK_BOX_Y = TRANSPARENT_LABEL_Y
 TRANSPARENT_CHECK_BOX_X = TRANSPARENT_LABEL_X + TRANSPARENT_LABEL_WIDTH + util.BETWEEN_ELEMENTS_HORIZONTAL
 
-BREAKABLE_LABEL_TEXT = 'Breakable:'
-BREAKABLE_LABEL_HEIGHT = util.LABEL_HEIGHT
-BREAKABLE_LABEL_WIDTH = 100
-BREAKABLE_LABEL_Y = TRANSPARENT_LABEL_Y + TRANSPARENT_LABEL_HEIGHT + util.BETWEEN_ELEMENTS_HORIZONTAL
-BREAKABLE_LABEL_X = WARPCODE_LABEL_X
-BREAKABLE_LABEL_STYLE_SHEET = LABEL_STYLE_SHEET
-
-BREAKABLE_CHECK_BOX_Y = BREAKABLE_LABEL_Y
-BREAKABLE_CHECK_BOX_X = BREAKABLE_LABEL_X + BREAKABLE_LABEL_WIDTH + util.BETWEEN_ELEMENTS_HORIZONTAL
-
-DURABILITY_LABEL_TEXT = 'Durability:'
-DURABILITY_LABEL_HEIGHT = util.LABEL_HEIGHT
-DURABILITY_LABEL_WIDTH = 100
-DURABILITY_LABEL_Y = BREAKABLE_LABEL_Y + BREAKABLE_LABEL_HEIGHT + util.BETWEEN_ELEMENTS_VERTICAL
-DURABILITY_LABEL_X = BREAKABLE_LABEL_X
-DURABILITY_LABEL_STYLE_SHEET = LABEL_STYLE_SHEET
-
-DURABILITY_EDIT_HEIGHT = util.LABEL_HEIGHT
-DURABILITY_EDIT_WIDTH = TILE_EDITOR_WIDTH - DURABILITY_LABEL_WIDTH - util.BETWEEN_ELEMENTS_HORIZONTAL * 3
-DURABILITY_EDIT_Y = DURABILITY_LABEL_Y
-DURABILITY_EDIT_X = DURABILITY_LABEL_X + DURABILITY_LABEL_WIDTH + util.BETWEEN_ELEMENTS_HORIZONTAL
-
-BROKEN_ALT_LABEL_TEXT = 'Broken alt:'
-BROKEN_ALT_LABEL_HEIGHT = util.LABEL_HEIGHT
-BROKEN_ALT_LABEL_WIDTH = 100
-BROKEN_ALT_LABEL_Y = DURABILITY_LABEL_Y + DURABILITY_LABEL_HEIGHT + util.BETWEEN_ELEMENTS_VERTICAL
-BROKEN_ALT_LABEL_X = DURABILITY_LABEL_X
-BROKEN_ALT_LABEL_STYLE_SHEET = LABEL_STYLE_SHEET
-
-BROKEN_ALT_COMBO_BOX_HEIGHT = util.LABEL_HEIGHT
-BROKEN_ALT_COMBO_BOX_WIDTH = TILE_EDITOR_WIDTH - BROKEN_ALT_LABEL_WIDTH - util.BETWEEN_ELEMENTS_HORIZONTAL * 3
-BROKEN_ALT_COMBO_BOX_Y = BROKEN_ALT_LABEL_Y
-BROKEN_ALT_COMBO_BOX_X = BROKEN_ALT_LABEL_X + BROKEN_ALT_LABEL_WIDTH + util.BETWEEN_ELEMENTS_HORIZONTAL
-
 TILE_COLOR_BUTTON_TEXT = 'Pick color'
 TILE_COLOR_BUTTON_HEIGHT = util.BUTTON_HEIGHT
 TILE_COLOR_BUTTON_WIDTH = 100
@@ -1140,7 +1106,7 @@ TILE_COLOR_LABEL_STYLE_SHEET = LABEL_STYLE_SHEET
 
 LR_TILE = (TILE_EDITOR_WIDTH - TILE_COLOR_LABEL_WIDTH - util.BETWEEN_ELEMENTS_HORIZONTAL - TILE_COLOR_BUTTON_WIDTH) // 2
 
-TILE_COLOR_LABEL_Y = BROKEN_ALT_COMBO_BOX_Y + BROKEN_ALT_COMBO_BOX_HEIGHT + util.BETWEEN_ELEMENTS_VERTICAL
+TILE_COLOR_LABEL_Y = TRANSPARENT_LABEL_Y + TRANSPARENT_LABEL_HEIGHT + util.BETWEEN_ELEMENTS_VERTICAL
 TILE_COLOR_LABEL_X = LR_TILE
 
 TILE_COLOR_BUTTON_Y = TILE_COLOR_LABEL_Y
@@ -1152,7 +1118,7 @@ TILE_SAVE_BUTTON_TEXT = 'Save'
 TILE_SAVE_BUTTON_HEIGHT = util.BUTTON_HEIGHT
 TILE_SAVE_BUTTON_WIDTH = TB_WIDTH
 TILE_SAVE_BUTTON_Y = TILE_COLOR_BUTTON_Y + TILE_COLOR_BUTTON_HEIGHT + util.BETWEEN_ELEMENTS_VERTICAL
-TILE_SAVE_BUTTON_X = BROKEN_ALT_LABEL_X
+TILE_SAVE_BUTTON_X = TRANSPARENT_LABEL_X
 
 TILE_CANCEL_BUTTON_TEXT = 'Cancel'
 TILE_CANCEL_BUTTON_HEIGHT = util.BUTTON_HEIGHT
@@ -1229,27 +1195,6 @@ class TileEditor(QDialog):
         transparent_label.move(TRANSPARENT_LABEL_X, TRANSPARENT_LABEL_Y)
         transparent_label.setStyleSheet(TRANSPARENT_LABEL_STYLE_SHEET)
 
-        breakable_label = QLabel(self)
-        breakable_label.setText(BREAKABLE_LABEL_TEXT)
-        breakable_label.setFixedHeight(BREAKABLE_LABEL_HEIGHT)
-        breakable_label.setFixedWidth(BREAKABLE_LABEL_WIDTH)
-        breakable_label.move(BREAKABLE_LABEL_X, BREAKABLE_LABEL_Y)
-        breakable_label.setStyleSheet(BREAKABLE_LABEL_STYLE_SHEET)
-
-        durability_label = QLabel(self)
-        durability_label.setText(DURABILITY_LABEL_TEXT)
-        durability_label.setFixedHeight(DURABILITY_LABEL_HEIGHT)
-        durability_label.setFixedWidth(DURABILITY_LABEL_WIDTH)
-        durability_label.move(DURABILITY_LABEL_X, DURABILITY_LABEL_Y)
-        durability_label.setStyleSheet(DURABILITY_LABEL_STYLE_SHEET)
-
-        broken_alt_label = QLabel(self)
-        broken_alt_label.setText(BROKEN_ALT_LABEL_TEXT)
-        broken_alt_label.setFixedHeight(BROKEN_ALT_LABEL_HEIGHT)
-        broken_alt_label.setFixedWidth(BROKEN_ALT_LABEL_WIDTH)
-        broken_alt_label.move(BROKEN_ALT_LABEL_X, BROKEN_ALT_LABEL_Y)
-        broken_alt_label.setStyleSheet(BROKEN_ALT_LABEL_STYLE_SHEET)
-
         self.color_label = QLabel(self)
         self.color_label.setFixedHeight(TILE_COLOR_LABEL_HEIGHT)
         self.color_label.setFixedWidth(TILE_COLOR_LABEL_WIDTH)
@@ -1273,12 +1218,6 @@ class TileEditor(QDialog):
         self.warpcode_edit.setFixedWidth(WARPCODE_EDIT_WIDTH)
         self.warpcode_edit.move(WARPCODE_EDIT_X, WARPCODE_EDIT_Y)
 
-        self.durability_edit = QLineEdit(self)
-        self.durability_edit.setFixedHeight(DURABILITY_EDIT_HEIGHT)
-        self.durability_edit.setFixedWidth(DURABILITY_EDIT_WIDTH)
-        self.durability_edit.move(DURABILITY_EDIT_X, DURABILITY_EDIT_Y)
-        self.durability_edit.setValidator(QIntValidator(gsdk.DURABILITY_MIN, gsdk.DURABILITY_MAX, self.durability_edit))
-
         # radio buttons
 
         self.passable_check_box = QCheckBox(self)
@@ -1289,21 +1228,7 @@ class TileEditor(QDialog):
         self.transparent_check_box.setFixedHeight(util.LABEL_HEIGHT)
         self.transparent_check_box.move(TRANSPARENT_CHECK_BOX_X, TRANSPARENT_CHECK_BOX_Y)
 
-        self.breakable_check_box = QCheckBox(self)
-        self.breakable_check_box.setFixedHeight(util.LABEL_HEIGHT)
-        self.breakable_check_box.move(BREAKABLE_CHECK_BOX_X, BREAKABLE_CHECK_BOX_Y)
-        self.breakable_check_box.clicked.connect(self.breakable_check_action)
-
         # combo boxes
-
-        self.broken_alt_combo_box = QComboBox(self)
-        self.broken_alt_combo_box.setFixedHeight(BROKEN_ALT_COMBO_BOX_HEIGHT)
-        self.broken_alt_combo_box.setFixedWidth(BROKEN_ALT_COMBO_BOX_WIDTH)
-        self.broken_alt_combo_box.move(BROKEN_ALT_COMBO_BOX_X, BROKEN_ALT_COMBO_BOX_Y)
-        self.broken_alt_combo_box.addItem('')
-        tile_names = self.parent_window.rd.get_tile_names()
-        for tn in tile_names:
-            self.broken_alt_combo_box.addItem(tn)
 
         script_names = self.parent_window.rd.get_script_names()
         self.interact_combo_box = QComboBox(self)

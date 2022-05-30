@@ -9,6 +9,7 @@ public class Player {
     private final String name;
     private final String className;
     private final Inventory inventory;
+    private final AttributeManager attributes;
 
     public Inventory getInventory() {
         return inventory;
@@ -19,10 +20,10 @@ public class Player {
     }
 
     public Player(Engine engine, String name, PlayerClass pClass) {
-//        TODO
         this.name = name;
         this.className = pClass.getName();
         this.inventory = new Inventory(engine);
+        this.attributes = new AttributeManager();
     }
 
     public String getName() {

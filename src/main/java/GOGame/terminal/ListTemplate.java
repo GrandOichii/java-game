@@ -28,6 +28,10 @@ public class ListTemplate {
         this.page = 0;
     }
 
+    public void setAt(int index, IDrawableAsLine line) {
+        items.set(index, line);
+    }
+
     public void draw(Terminal terminal, int x, int y, boolean focusSelected) {
         var top = Math.min(maxDisplayAmount, items.size());
 //        System.out.println(top);

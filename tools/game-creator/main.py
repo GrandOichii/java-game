@@ -3,6 +3,7 @@ from PyQt5.QtCore import *
 from ContainerEditor import ContainerEditorWindow
 from RoomEditor import RoomEditorWindow
 from ItemEditor import ItemEditorWindow
+from ClassEditor import ClassEditorWindow
 import util
 import gamesdk as gsdk
 import sys
@@ -425,7 +426,7 @@ class MainAppWindow(QMainWindow):
         self.item_names_list.clear()
         self.container_names_list.clear()
         self.enemy_names_list.clear()
-        # TODO add class list clearing?
+        self.class_names_list.clear()
 
     #  actions
 
@@ -467,8 +468,15 @@ class MainAppWindow(QMainWindow):
         pass
     
     def class_double_clicked(self, e):
-        # TODO
-        pass
+        i = self.class_names_list.selectedIndexes()[0].row()
+        pclass = self.game.classes[i]
+        w = ClassEditorWindow(self, pclass)
+        pclass, ok = w.edit()
+        if not ok:
+            return
+        self.game.classes[i] = pclass
+        sel = self.class_names_list.selectedItems()[0]
+        sel.setText(pclass.name)
 
     def create_new_game_action(self):
         if self.game != None:
@@ -511,6 +519,9 @@ class MainAppWindow(QMainWindow):
             self.room_windows += [w]
             w.rd = room
             w.update_elements()
+        # classes
+        for pclass in self.game.classes:
+            self.class_names_list.addItem(pclass.name)
 
     def save_game_action(self):
         if not self.check_game():
@@ -529,20 +540,7 @@ class MainAppWindow(QMainWindow):
         self.save_dir = dir
         print(self.save_dir)
         self.save_game()
-
-    def edit_classes_action(self):
-        # TODO
-        # util.show_message_box('CAN\'T EDIT CLASSES')
-        if self.game is None:
-            return
-        text, ok = QInputDialog.getMultiLineText(self, 'Enter class names', 'Classes:', '\n'.join(list(self.game.cs.classes.keys())))
-        if not ok:
-            return
-        class_names = text.split('\n')
-        self.game.cs.classes = {}
-        for name in class_names:
-            self.game.cs.classes[name] = {}
-
+    
     def edit_game_info_action(self):
         if self.game is None:
             return
@@ -642,13 +640,25 @@ class MainAppWindow(QMainWindow):
         pass
 
     def new_class_action(self):
-        # TODO
-        self.edit_classes_action()
-        pass
+        if self.game is None:
+            return
+        w = ClassEditorWindow(self)
+        pclass, ok = w.edit()
+        if not ok:
+            return
+        self.game.classes += [pclass]
+        self.class_names_list.addItem(pclass.name)
 
     def delete_class_action(self):
-        # TODO
-        pass
+        si = self.class_names_list.selectedIndexes()
+        if len(si) != 1:
+            return
+        i = si[0].row()
+        pclass = self.game.classes[i]
+        if util.show_message_box(f'Are you sure you want to delete class {pclass.name}?', QMessageBox.No | QMessageBox.Yes) == QMessageBox.No:
+            return
+        self.game.classes.remove(pclass)
+        self.class_names_list.takeItem(i)
 
 GAME_INFO_NAME_LABEL_TEXT = 'Game name:'
 GAME_INFO_NAME_LABEL_HEIGHT = util.LABEL_HEIGHT

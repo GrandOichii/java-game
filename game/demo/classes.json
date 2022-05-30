@@ -1,11 +1,42 @@
 [
     {
-        "name": "Warrior"
+        "name": "Warrior",
+        "description": "A warrior.",
+        "VIT": 15,
+        "STR": 15,
+        "AGI": 12,
+        "INT": 10,
+        "WIS": 10,
+        "LUC": 10,
+        "items": {
+            "broadsword": 1
+        }
     },
     {
-        "name": "Mage"
+        "name": "Mage",
+        "description": "A mage.",
+        "VIT": 10,
+        "STR": 10,
+        "AGI": 10,
+        "INT": 15,
+        "WIS": 15,
+        "LUC": 12,
+        "items": {
+            "wooden_stick": 1
+        }
     },
     {
-        "name": "Rogue"
+        "name": "Rogue",
+        "description": "A rogue.",
+        "VIT": 10,
+        "STR": 12,
+        "AGI": 15,
+        "INT": 10,
+        "WIS": 10,
+        "LUC": 15,
+        "items": {
+            "wooden_arrow": 20,
+            "wooden_bow": 1
+        }
     }
 ]

@@ -78,11 +78,11 @@ public abstract class TWindow {
         if (this.title != null) {
             title.draw(terminal, x + 1, y);
         }
-        g.disableModifiers(SGR.BOLD);
     }
 
     public void show() throws IOException {
         this.running = true;
+        g.enableModifiers(SGR.BOLD);
         while (this.running) {
             this.clear();
             this.drawBorder();
@@ -92,6 +92,7 @@ public abstract class TWindow {
             this.handleInput(key);
         }
         this.clear();
+        g.disableModifiers(SGR.BOLD);
     }
 
     protected abstract void draw();

@@ -25,8 +25,6 @@ public abstract class Weapon extends EquipableItem {
 
     @Override
     protected String additionalDescriptionInfo() {
-        var result = "";
-        result += String.format("Damage: %d-%d  Range:%d\n\n", minDamage, maxDamage, range);
-        return result;
+        return super.additionalDescriptionInfo() + String.format("Damage: %d-%d  Range:%d\n\n", minDamage, maxDamage, range);
     }
 }
