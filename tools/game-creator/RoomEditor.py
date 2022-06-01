@@ -888,8 +888,8 @@ class RoomEditorWindow(QMainWindow):
         if len(warnings) != 0:
             util.show_message_box('Warning:\n' + '\n'.join(warnings))
 
-SCRIPT_TEXT_EDIT_HEIGHT = 300
-SCRIPT_TEXT_EDIT_WIDTH = 300
+SCRIPT_TEXT_EDIT_HEIGHT = 600
+SCRIPT_TEXT_EDIT_WIDTH = 600
 
 SCRIPT_NAME_LABEL_TEXT = 'Name: '
 SCRIPT_NAME_LABEL_HEIGHT = util.LABEL_HEIGHT

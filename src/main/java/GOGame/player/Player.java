@@ -1,12 +1,14 @@
 package GOGame.player;
 
 import GOGame.Engine;
-import GOGame.items.Container;
-import GOGame.items.Inventory;
-import GOGame.items.Item;
+import GOGame.Pair;
+import GOGame.items.*;
+
+import java.util.*;
 
 public class Player {
     private final String name;
+    private final Engine engine;
     private String className;
     private final Inventory inventory;
     private final AttributeManager attributes;
@@ -19,6 +21,11 @@ public class Player {
         return inventory;
     }
 
+    public void takeItem(String itemName) {
+        inventory.takeItem(itemName);
+    }
+
+
     public void addItemsFromContainer(Container container) {
         inventory.addItemsFromContainer(container);
     }
@@ -27,6 +34,7 @@ public class Player {
         this.name = name;
         this.inventory = new Inventory(engine);
         this.attributes = new AttributeManager();
+        this.engine = engine;
 
         this.injectClassData(engine, pClass);
     }
@@ -54,4 +62,84 @@ public class Player {
     public void addItem(Item item) {
         this.inventory.addItem(item);
     }
+
+    private final Map<String, EquipableItem> limbMap = new HashMap<>(){{
+        put("ARM1", null);
+        put("ARM2", null);
+        put("HEAD", null);
+        put("TORSO", null);
+        put("LEGS", null);
+    }};
+
+    public Map<String, EquipableItem> getEquipmentMap() {
+        return limbMap;
+    }
+
+    private final static Map<EquipSlot, String[]> LIMB_EQUIP_MAP = new EnumMap<>(EquipSlot.class){{
+        put(EquipSlot.ARM, new String[]{"ARM1", "ARM2"});
+        put(EquipSlot.ARMS, new String[]{"ARMS"});
+        put(EquipSlot.HEAD, new String[]{"HEAD"});
+        put(EquipSlot.TORSO, new String[]{"TORSO"});
+        put(EquipSlot.LEGS, new String[]{"LEGS"});
+    }};
+
+    public Item[] getEquippedItems(String limb) {
+        if (limb.equals("ARMS")) {
+            return new Item[]{limbMap.get("ARM1"), limbMap.get("ARM2")};
+        }
+        return new Item[]{limbMap.get(limb)};
+    }
+
+
+    public List<Pair<String, String>> getLimbLines(EquipSlot slot) {
+        if (!LIMB_EQUIP_MAP.containsKey(slot)) throw new RuntimeException("can't recognize slot " + slot + " for limbs");
+        var lines = LIMB_EQUIP_MAP.get(slot).clone();
+        var result = new ArrayList<Pair<String, String>>();
+        for (int i = 0; i < lines.length; i++){
+            var items = getEquippedItems(lines[i]);
+            var names = new ArrayList<String>();
+            for (var item : items) {
+                if (item != null) names.add(item.getDisplayName());
+            }
+            var pair = new Pair<>("", lines[i]);
+            var j = String.join(", ", names);
+            if (j.length() != 0) {
+                lines[i] += " (" + j + ")";
+            }
+            pair.setFirst(lines[i]);
+            result.add(pair);
+        }
+        return result;
+    }
+
+    public void equip(EquipableItem item, String limb) {
+        if (limb.equals("ARMS")) {
+            limbMap.put("ARM1", item);
+            limbMap.put("ARM2", item);
+        } else {
+            if (limb.startsWith("ARM")){
+                var i = limbMap.get("ARM1");
+                if (i != null && i.getSlot().equals(EquipSlot.ARMS)) {
+                    limbMap.put("ARM1", null);
+                    limbMap.put("ARM2", null);
+                }
+            }
+            limbMap.put(limb, item);
+//            if item is equipped to other limb, unequip it
+            var count = inventory.count(item.getName());
+            for (var otherLimb : limbMap.keySet()) {
+                if (otherLimb.equals(limb)) {
+                    continue;
+                }
+                var otherItem = limbMap.get(otherLimb);
+                if (otherItem == item) {
+                    count--;
+                    if (count > 0) continue;
+                    limbMap.put(otherLimb, null);
+                }
+            }
+        }
+        engine.updatePlayerLook();
+    }
+
 }

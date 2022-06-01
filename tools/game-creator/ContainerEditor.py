@@ -170,7 +170,7 @@ class ContainerEditorWindow(QDialog):
         self.key_line_edit.setText(container.key)
         self.items = container.items
         for item in self.items:
-            self.items_list.addItem(item.name)
+            self.items_list.addItem(item.name + ' x ' + str(item.amount))
 
     def initUI(self):
         self.setWindowTitle(WINDOW_TITLE)
@@ -222,7 +222,7 @@ class ContainerEditorWindow(QDialog):
         if not ok:
             return
         self.items += [item]
-        self.items_list.addItem(item.name + ' x ' + item.amount)
+        self.items_list.addItem(item.name + ' x ' + str(item.amount))
 
     def delete_action(self):
         si = self.items_list.selectedIndexes()
@@ -242,7 +242,7 @@ class ContainerEditorWindow(QDialog):
             return
         self.items[i] = item
         sel = self.items_list.selectedItems()[0]
-        sel.setText(item.name + ' x ' + item.amount)
+        sel.setText(item.name + ' x ' + str(item.amount))
 
     def cancel_action(self):
         self.ok = False

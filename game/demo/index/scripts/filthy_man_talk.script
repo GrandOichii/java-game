@@ -1,1 +1,20 @@
-log "The Filthy Man doesn't want to talk to you."
+give_bone {
+take "strange_bone"
+log "Filthy man says: Thanks a lot! Here, take this."
+give "door_key"
+log "Filthy man gives you a key"
+set gave_bone 1
+}
+
+prompt_to_give_bone {
+mb "Give the filthy man your strange bone?" "Yes_No"
+if _mbresult = "Yes" then run give_bone
+}
+
+talk_to_filthy_man {
+log "The filthy man says: Man, I could really use a bone right now"
+if has_item "strange_bone" then run prompt_to_give_bone
+}
+
+if set gave_bone then log "Filthy man says: Thanks again for the bone, kind stranger!"
+if not set gave_bone then run talk_to_filthy_man

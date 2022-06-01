@@ -12,6 +12,8 @@ public class ItemManager {
     private AmmoItem[] ammoItems;
     @JsonProperty("weapons")
     private WeaponLoadInfo weapons;
+    @JsonProperty("armor")
+    private ArmorItem[] armorItems;
 
     private final List<Item> items = new ArrayList<>();
 
@@ -22,6 +24,7 @@ public class ItemManager {
     public void setUp() {
         items.addAll(List.of(basicItems));
         items.addAll(List.of(ammoItems));
+        items.addAll(List.of(armorItems));
         items.addAll(weapons.getItems());
     }
 

@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Item {
     private final boolean stackable;
@@ -61,5 +63,9 @@ public abstract class Item {
     }
 
     protected abstract String additionalDescriptionInfo();
+
+    public List<String> getAllowedActions() {
+        return new ArrayList<>(){{add("close");}};
+    }
 }
 

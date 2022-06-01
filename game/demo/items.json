@@ -4,6 +4,16 @@
             "name": "rock",
             "displayName": "Rock",
             "description": "A small rock. Can be found anywhere. Not much use."
+        },
+        {
+            "name": "door_key",
+            "displayName": "Key",
+            "description": "A simple key."
+        },
+        {
+            "name": "strange_bone",
+            "displayName": "Strange bone",
+            "description": "A strange looking bone. Definately did not come from a human."
         }
     ],
     "ammo": [
@@ -14,6 +24,44 @@
             "ammoType": "ARROW",
             "damageType": "PHYSICAL",
             "damage": 2
+        }
+    ],
+    "armor": [
+        {
+            "name": "iron_helmet",
+            "displayName": "Iron Helmet",
+            "description": "A standard iron helmet. Doesn't offer much protection.",
+            "armorRating": "3",
+            "requirements": {
+                "STR": 10,
+                "AGI": 10,
+                "INT": 0
+            },
+            "slot": "HEAD"
+        },
+        {
+            "name": "iron_cuirass",
+            "displayName": "Iron Cuirass",
+            "description": "A standard iron cuirass.",
+            "armorRating": "5",
+            "requirements": {
+                "STR": 12,
+                "AGI": 10,
+                "INT": 0
+            },
+            "slot": "TORSO"
+        },
+        {
+            "name": "iron_leggins",
+            "displayName": "Iron Leggins",
+            "description": "A standard pair of iron leggins.",
+            "armorRating": "4",
+            "requirements": {
+                "STR": 12,
+                "AGI": 10,
+                "INT": 0
+            },
+            "slot": "LEGS"
         }
     ],
     "weapons": {

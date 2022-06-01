@@ -11,7 +11,10 @@
             "LUC": 10
         },
         "items": {
-            "broadsword": 1
+            "broadsword": 1,
+            "iron_helmet": 1,
+            "iron_cuirass": 1,
+            "iron_leggins": 1
         }
     },
     {

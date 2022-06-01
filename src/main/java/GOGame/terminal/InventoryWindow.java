@@ -29,11 +29,13 @@ abstract class Menu {
 }
 
 class ItemsSubMenu extends Menu {
+    private Engine game;
     private ItemLine[] itemNames;
     private ListTemplate itemList;
 
-    public ItemsSubMenu(TWindow parent, String title, ItemLine[] items) {
+    public ItemsSubMenu(TWindow parent, Engine game, String title, ItemLine[] items) {
         super(parent, title);
+        this.game = game;
         this.itemNames = items;
         var lines = new ArrayList<IDrawableAsLine>();
         for (var itemName : itemNames) {
@@ -55,7 +57,7 @@ class ItemsSubMenu extends Menu {
             var i = itemList.getChoice();
             var line = itemNames[i];
             try {
-                new ItemDescriptionWindow(parent.terminal, parent.g, line).show();
+                new ItemDescriptionWindow(parent.terminal, parent.g, game, line).show();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -84,12 +86,12 @@ class ItemsMenu extends Menu {
     private ItemsSubMenu[] menus;
     private int menuI;
 
-    public ItemsMenu(TWindow parent, SortedItemLines itemNames) {
+    public ItemsMenu(TWindow parent, SortedItemLines itemNames, Engine game) {
         super(parent, "Items");
         var menus = new ArrayList<ItemsSubMenu>();
         var tm = itemNames.getItemTypeMap();
         for (var key : tm.keySet()) {
-            menus.add(new ItemsSubMenu(parent, key, tm.get(key)));
+            menus.add(new ItemsSubMenu(parent, game, key, tm.get(key)));
         }
         this.menus = menus.toArray(new ItemsSubMenu[0]);
     }
@@ -158,7 +160,7 @@ public class InventoryWindow extends TWindow {
         var items = game.getPlayer().getInventory().getAsPrettyList();
 
         menus = new Menu[]{
-            new ItemsMenu(this, items)
+            new ItemsMenu(this, items, game)
         };
     }
 

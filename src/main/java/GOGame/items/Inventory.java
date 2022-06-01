@@ -24,6 +24,27 @@ public class Inventory {
         this.e = engine;
     }
 
+    public void takeItem(String itemName) {
+        for (var pair : items) {
+            if (pair.getFirst().equals(itemName)) {
+                pair.setSecond(pair.getSecond() - 1);
+                if (pair.getSecond() <= 0) {
+                    items.remove(pair);
+                    return;
+                }
+            }
+        }
+    }
+
+    public int count(String itemName) {
+        for (var pair : items) {
+            if (pair.getFirst().equals(itemName)) {
+                return pair.getSecond();
+            }
+        }
+        return 0;
+    }
+
     public void addItem(Item item) {
         this.addItem(item, 1);
     }

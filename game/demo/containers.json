@@ -16,7 +16,8 @@
         "rock": 33
     },
     "chest7": {
-        "rock": 12
+        "rock": 12,
+        "strange_bone": 1
     },
     "chest8": {
         "wooden_stick": 1,

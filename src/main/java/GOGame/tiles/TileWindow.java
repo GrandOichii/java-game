@@ -78,6 +78,11 @@ public class TileWindow extends JFrame implements IGameWindow, KeyListener {
     }
 
     @Override
+    public void updatePlayerLook() {
+//        TODO
+    }
+
+    @Override
     public void keyTyped(KeyEvent e) {
 
     }

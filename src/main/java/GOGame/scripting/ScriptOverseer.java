@@ -4,6 +4,7 @@ import GOGame.Engine;
 import GOGame.Utility;
 import GOGame.exceptions.ScriptArgumentsException;
 import GOGame.exceptions.ScriptException;
+import GOGame.items.EquipableItem;
 import GOGame.player.Attribute;
 import GOGame.player.Player;
 
@@ -57,33 +58,47 @@ public class ScriptOverseer {
         this.e = engine;
         this.macros = new HashMap<>();
         this.vars = new HashMap<>();
-        var ifEvaluators = new HashMap<String, EvaluatorFunc>();
-//        set evaluation
-        ifEvaluators.put("set", new EvaluatorFunc(this) {
-            @Override
-            public boolean eval(Object[] args) throws ScriptArgumentsException {
-                var reqCount = 2;
-                if (args.length != reqCount) {
-                    throw new ScriptArgumentsException("set", reqCount, args.length);
+        var so = this;
+        var ifEvaluators = new HashMap<String, EvaluatorFunc>() {{
+//            set evaluation
+            put("set", new EvaluatorFunc() {
+                @Override
+                public boolean eval(Object[] args) throws ScriptArgumentsException {
+                    var reqCount = 2;
+                    if (args.length != reqCount) {
+                        throw new ScriptArgumentsException("set", reqCount, args.length);
+                    }
+                    var vars = so.vars;
+                    var key = (String) args[1];
+                    var contains = vars.containsKey(key);
+                    return contains;
                 }
-                var vars = this.getSO().vars;
-                var key = (String) args[1];
-                var contains = vars.containsKey(key);
-                return contains;
-            }
-        });
-//        equals evaluation
-        ifEvaluators.put("=", new EvaluatorFunc(this) {
-            @Override
-            public boolean eval(Object[] args) throws ScriptException {
-                var reqCount = 3;
-                if (args.length != reqCount) {
-                    throw new ScriptArgumentsException("=", reqCount, args.length);
+            });
+//            equals evaluation
+            put("=", new EvaluatorFunc() {
+                @Override
+                public boolean eval(Object[] args) throws ScriptException {
+                    var reqCount = 3;
+                    if (args.length != reqCount) {
+                        throw new ScriptArgumentsException("=", reqCount, args.length);
+                    }
+                    return so.equal(args[0], args[2]);
                 }
-                var so = getSO();
-                return so.equal(args[0], args[2]);
-            }
-        });
+            });
+//            has item evaluator
+            put("has_item", new EvaluatorFunc() {
+                @Override
+                public boolean eval(Object[] args) throws ScriptException {
+                    var reqCount = 2;
+                    if (args.length != reqCount) {
+                        throw new ScriptArgumentsException("has_item", reqCount, args.length);
+                    }
+                    var inventory = e.getPlayer().getInventory();
+                    var itemName = so.toString(args[1]);
+                    return inventory.count(itemName) > 0;
+                }
+            });
+        }};
         funcMap = new HashMap<>(){{
             put("debug:list_commands", new Function() {
                 @Override
@@ -167,10 +182,26 @@ public class ScriptOverseer {
                     e.getPlayer().addItem(item);
                 }
             });
+            put("take", new Function() {
+                @Override
+                public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
+                    var reqCount = 1;
+                    if (args.length != reqCount) {
+                        throw new ScriptArgumentsException("take", reqCount, args.length);
+                    }
+                    var itemName = so.toString(args[0]);
+                    var count = e.getPlayer().getInventory().count(itemName);
+                    if (count == 0) {
+                        throw new ScriptException("can't take item " + itemName + ": player doesn't have it");
+                    }
+                    var item = e.getItemManager().get(itemName);
+                    if (item instanceof EquipableItem) throw new RuntimeException("can't take equipable item " + itemName);
+                    e.getPlayer().takeItem(itemName);
+                }
+            });
             put("opencontainer", new Function() {
                 @Override
                 public void exec(Object[] args, ScriptOverseer so) throws ScriptException {
-    //                opencontainer chest1 "Small Chest"
                     var reqCount = 2;
                     if (args.length != reqCount) {
                         throw new ScriptArgumentsException("opencontainer", reqCount, args.length);
@@ -290,10 +321,14 @@ public class ScriptOverseer {
                         }
                     }
                     if (ifOp.equals("")) {
-                        if (ifArgs[0].equals("set")) {
-                            ifOp = "set";
-                        }
-                        else {
+                        var exceptions = new ArrayList<String>(){{
+                            add("set");
+                            add("has_item");
+                        }};
+                        var ifArgFirst = (String)ifArgs[0];
+                        if (exceptions.contains(ifArgFirst)) {
+                            ifOp = ifArgFirst;
+                        } else {
                             throw new ScriptException("unknown evaluator " + ifArgs[1]);
                         }
                     }

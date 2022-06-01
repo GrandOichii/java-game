@@ -1,1 +1,2 @@
-log "Can't leave"
+if not has_item "door_key" then log "The door is locked"
+if has_item "door_key" then log "You have the key"

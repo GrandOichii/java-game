@@ -10,4 +10,5 @@ public interface IGameWindow {
     String requestChoice(String text, String[] choices);
     void onLogUpdate(String message);
     void openContainer(String containerName, String containerTop) throws IOException;
+    void updatePlayerLook();
 }

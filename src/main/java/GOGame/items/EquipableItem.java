@@ -3,20 +3,18 @@ package GOGame.items;
 import GOGame.player.Attribute;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-
-enum EquipSlot {
-    ARM("ARM"),
-    ARMS("ARMS");
-    private String title;
-    EquipSlot(String title) {
-        this.title = title;
-    }
-}
+import java.util.List;
 
 public abstract class EquipableItem extends Item {
     @JsonProperty("slot")
     private EquipSlot slot;
+
+    public EquipSlot getSlot() {
+        return slot;
+    }
+
     @JsonProperty("requirements")
     private HashMap<Attribute, Integer> requirements;
 
@@ -34,6 +32,13 @@ public abstract class EquipableItem extends Item {
             }
             result.append(String.format(" %s: [%d]", key, value));
         }
-        return result.toString() + "\n";
+        return result + "\n";
+    }
+
+    @Override
+    public List<String> getAllowedActions() {
+        var result = super.getAllowedActions();
+        result.add(0, "equip");
+        return result;
     }
 }

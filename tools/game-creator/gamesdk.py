@@ -77,7 +77,8 @@ COMMAND_MAP = {
     'clearenemycodes': 0,
     'additem': 1,
     'opencontainer': -1,
-    'give': 1
+    'give': 1,
+    'take': 1
 }
 
 def is_good_script(script: str) -> CheckError:
@@ -162,7 +163,7 @@ class ClassData:
             result[key] = self.__dict__[key]
         result['attributes'] = {}
         for key in ATTRIBUTES:
-            result['attributes']['key'] = self.__dict__[key]
+            result['attributes'][key] = self.__dict__[key]
         result['items'] = {}
         for item in self.items:
             result['items'][item.name] = item.amount
@@ -210,7 +211,9 @@ ITEM_TYPES = [
     'basic',
     'melee weapon',
     'ranged weapon',
-    'ammo'
+    'ammo',
+    'armor'
+    # ADD ITEM TYPE HERE
 ]
 
 SLOTS = [
@@ -231,7 +234,7 @@ DAMAGE_TYPES = [
     'PHYSICAL'
 ]
 
-ITEM_KEYS = ['name', 'displayName', 'description', 'damageType', 'minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot']
+ITEM_KEYS = ['name', 'displayName', 'description', 'damageType', 'minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot', 'armorRating']
 
 # item_templates = json.loads(open('template-items.json', 'r').read())
 ITEM_TYPE_KEYS = {
@@ -242,7 +245,9 @@ ITEM_TYPE_KEYS = {
     'basic': ['name', 'displayName', 'description'],
     'ammo': ['name', 'displayName', 'description', 'ammoType', 'damageType', 'damage'],
     'melee weapon': ['name', 'displayName', 'description', 'damageType', 'minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot'],
-    'ranged weapon': ['name', 'displayName', 'description', 'minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot', 'ammoType']
+    'ranged weapon': ['name', 'displayName', 'description', 'minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot', 'ammoType'],
+    'armor': ['name', 'displayName', 'description', 'armorRating', 'STR', 'AGI', 'INT', 'slot']
+    # ADD ITEM TYPE HERE
 }
 
 REQUIREMENT_KEYS = [
@@ -258,6 +263,8 @@ NUMBER_KEYS = [
     'range'
 ]
 
+MAX_ARMOR_RATING = 20
+
 class ItemData:
     def __init__(self):
         self.selected_type: str = ''
@@ -270,6 +277,7 @@ class ItemData:
         self.damage: int = 0
         self.minDamage: int = 0
         self.maxDamage: int = 0
+        self.armorRating: int = 0
         self.range: int = 0
         self.STR: int = 0
         self.AGI: int = 0
@@ -537,6 +545,7 @@ class GameObject:
             s = f.read()
             data = json.loads(s)
             result.items += extract_items('basic', data['basic'])
+            result.items += extract_items('armor', data['armor'])
             result.items += extract_items('ammo', data['ammo'])
             result.items += extract_items('ranged weapon', data['weapons']['ranged'])
             result.items += extract_items('melee weapon', data['weapons']['melee'])
@@ -627,15 +636,18 @@ class GameObject:
             room.save(path_to_game)
         # save items
         with open(os.path.join(path_to_game, ITEMS_FILE), 'w') as f:
+            # ADD ITEM TYPE HERE
             data = {}
             data['basic'] = []
             data['ammo'] = []
+            data['armor'] = []
             data['weapons'] = {'ranged': [], 'melee': []}
             m = {
                 'basic': data['basic'],
                 'ammo': data['ammo'],
                 'melee weapon': data['weapons']['melee'],
-                'ranged weapon': data['weapons']['ranged']
+                'ranged weapon': data['weapons']['ranged'],
+                'armor': data['armor']
             }
             for item in self.items:
                 m[item.selected_type] += [item.to_json()]

@@ -310,4 +310,8 @@ public class Engine {
         var container = containerManager.get(containerName);
         player.addItemsFromContainer(container);
     }
+
+    public void updatePlayerLook() {
+        this.w.updatePlayerLook();
+    }
 }

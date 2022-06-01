@@ -152,7 +152,6 @@ public class TerminalWindow implements IGameWindow {
     }
 
     private CCTMessage[] logToCCTs(String message) {
-//        TODO
         return new CCTMessage[]{new CCTMessage("- ${white-black}" + message)};
     }
 
@@ -166,6 +165,8 @@ public class TerminalWindow implements IGameWindow {
             logList.moveDown();
             this.selectLogList = true;
         }
+        this.drawLogWindow(false);
+//        this.terminal.flush();
     }
 
     @Override
@@ -178,6 +179,21 @@ public class TerminalWindow implements IGameWindow {
         w.show();
         if (w.lootConfirmed()) {
             game.lootContainer(containerName);
+        }
+    }
+
+    @Override
+    public void updatePlayerLook() {
+//        TODO
+        var player = game.getPlayer();
+        var equipment = player.getEquipmentMap();
+        for (var key : equipment.keySet()) {
+            var item = equipment.get(key);
+            var second = "none";
+            if (item != null) {
+                second = item.getDisplayName();
+            }
+            System.out.println(key + " -- " + second);
         }
     }
 
@@ -543,6 +559,10 @@ public class TerminalWindow implements IGameWindow {
     }
 
     private void drawLogWindow() {
+        this.drawLogWindow(true);
+    }
+
+    private void drawLogWindow(boolean updateTiming) {
         var y = tileWindowHeight + 2;
         var x = TILE_WINDOW_OFFSET_X - 1;
         this.graphics.setForegroundColor(TextColor.ANSI.RED);
@@ -550,7 +570,9 @@ public class TerminalWindow implements IGameWindow {
         this.graphics.setForegroundColor(TextColor.ANSI.DEFAULT);
         LOG_WINDOW_LABEL.draw(terminal, x + 1, y);
         logList.draw(terminal, x + 1, y + 1, this.selectLogList);
-        this.selectLogList = false;
+        if (updateTiming) {
+            this.selectLogList = false;
+        }
     }
 
     private final HashSet<String> unknownTiles = new HashSet<>();
@@ -584,7 +606,7 @@ public class TerminalWindow implements IGameWindow {
     private void interact() {
         var tiles = this.game.getAdjacentInteractableTiles();
         if (tiles.size() == 0) {
-//            TODO
+            this.requestChoice("No interactable tiles nearby!", new String[]{"Ok"});
             return;
         }
         this.drawTiles(tiles, true);

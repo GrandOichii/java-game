@@ -1,16 +1,23 @@
 package GOGame.terminal;
 
+import GOGame.Engine;
 import GOGame.Utility;
+import GOGame.items.EquipableItem;
+import GOGame.items.Item;
 import GOGame.items.ItemLine;
 import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.terminal.Terminal;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 abstract class SideButton {
     private CCTMessage text;
@@ -23,7 +30,7 @@ abstract class SideButton {
         this.text = new CCTMessage(text);
     }
 
-    public abstract void press();
+    public abstract void press() throws IOException;
 
     public void draw(Terminal terminal, int x, int y, boolean reverseColor) {
         this.text.draw(terminal, x, y, reverseColor);
@@ -33,26 +40,99 @@ abstract class SideButton {
 public class ItemDescriptionWindow extends TWindow {
     private static final int MAX_DESCRIPTION_WIDTH = 60;
     private static final String BORDER_COLOR = "cyan";
+    private final Item item;
+    private Engine game;
+
+    public Item getItem() {
+        return item;
+    }
 
     private SideButton[] sideButtons;
     private final int separatorX;
     private int buttonI = 0;
     private final String descriptionLines[];
 
-    public ItemDescriptionWindow(Terminal terminal, TextGraphics g, ItemLine line) {
+    private final Map<String, SideButton> SIDE_BUTTON_MAP = new HashMap<>(){{
+        put("equip", new SideButton("Equip") {
+            @Override
+            public void press() throws IOException {
+                var item = (EquipableItem)getItem();
+                var player = game.getPlayer();
+                var pairs = player.getLimbLines(item.getSlot());
+                var size = pairs.size();
+                var CCTs = new CCTMessage[size];
+                AtomicInteger cctI = new AtomicInteger();
+                var width = 0;
+                for (int i = 0; i < size; i++) {
+                    var line = pairs.get(i).getFirst();
+                    CCTs[i] = new CCTMessage("${white-black}" + line);
+                    var length = line.length();
+                    if (length > width) width = length;
+                }
+                width += 2;
+                var height = size + 2;
+                var boxY = y + 1;
+                var boxX = x + getWidth() - 1;
+                AtomicBoolean running = new AtomicBoolean(true);
+                var keyMap = new HashMap<KeyType, Runnable>(){{
+                    put(KeyType.Enter, () -> {
+                        var pair = pairs.get(cctI.get());
+                        player.equip(item, pair.getSecond());
+                        running.set(false);
+                    });
+                    put(KeyType.ArrowUp, () -> {
+                        cctI.getAndIncrement();
+                        if (cctI.get() >= CCTs.length) cctI.set(0);
+                    });
+                    put(KeyType.ArrowDown, () -> {
+                        cctI.getAndDecrement();
+                        if ((cctI.get() <= 0)) cctI.set(CCTs.length - 1);
+                    });
+                    put(KeyType.Escape, () -> running.set(false));
+                }};
+                while (running.get()) {
+//                    draw
+                    g.drawRectangle(new TerminalPosition(boxX, boxY), new TerminalSize(width, height), '*');
+                    for (int i = 0; i < CCTs.length; i++) {
+                        CCTs[i].draw(terminal, boxX + 1, boxY + 1 + i, i == cctI.get());
+                    }
+                    terminal.flush();
+//                    input
+                    var key = terminal.readInput();
+                    var kt = key.getKeyType();
+                    if (!keyMap.containsKey(kt)) continue;
+                    keyMap.get(kt).run();
+                }
+//                clear
+                var l = " ".repeat(width);
+                for (int i = 0; i < height; i++) {
+                    TerminalUtility.putAt(terminal, boxX, boxY + i, l);
+                }
+            }
+        });
+        put("close", new SideButton("Close") {
+            @Override
+            public void press() {
+                close();
+            }
+        });
+    }};
+
+    public ItemDescriptionWindow(Terminal terminal, TextGraphics g, Engine game, ItemLine line) {
         super(terminal, g, 0, 0, 2, 3);
-        var item = line.getItem();
+        this.item = line.getItem();
+        this.game = game;
         this.setTitle("${cyan}" + item.getDisplayName());
         this.setBorderColor(BORDER_COLOR);
         this.descriptionLines = Utility.StringWidthSplit(item.getBigDescription(line.getAmount()), MAX_DESCRIPTION_WIDTH);
-        sideButtons = new SideButton[]{
-                new SideButton("Close") {
-                    @Override
-                    public void press() {
-                        close();
-                    }
-                }
-        };
+        var actions = item.getAllowedActions();
+        var size = actions.size();
+        this.sideButtons = new SideButton[size];
+        for (int i = 0; i < size; i++) {
+            var action = actions.get(i);
+            if (!SIDE_BUTTON_MAP.containsKey(action)) throw new RuntimeException("unknown item action: " + action);
+            this.sideButtons[i] = SIDE_BUTTON_MAP.get(action);
+        }
         var maxLength = -1;
         for (var b : sideButtons) {
             var l = b.getText().length();
@@ -87,7 +167,13 @@ public class ItemDescriptionWindow extends TWindow {
 
     private final Map<KeyType, Runnable> keyMap = new HashMap<>(){{
         put(KeyType.Escape, () -> close());
-        put(KeyType.Enter, () -> sideButtons[buttonI].press());
+        put(KeyType.Enter, () -> {
+            try {
+                sideButtons[buttonI].press( );
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
         put(KeyType.ArrowDown, () -> {
             buttonI--;
             if (buttonI < 0) buttonI = sideButtons.length - 1;

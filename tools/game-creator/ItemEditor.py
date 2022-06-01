@@ -145,6 +145,10 @@ class ItemEditorWindow(QDialog):
                 'label': create_label('Slot:'),
                 'element': create_combo_box(gsdk.SLOTS)
             },
+            'armorRating': {
+                'label': create_label('Armor rating:'),
+                'element': create_number_edit(0, gsdk.MAX_ARMOR_RATING)
+            },
             'STR': {
                 'label': create_label('STR requirement:'),
                 'element': create_number_edit(0, gsdk.MAX_ATTRIBUTE)
