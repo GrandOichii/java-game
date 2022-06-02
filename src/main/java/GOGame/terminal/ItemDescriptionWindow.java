@@ -2,9 +2,11 @@ package GOGame.terminal;
 
 import GOGame.Engine;
 import GOGame.Utility;
+import GOGame.exceptions.SpellException;
 import GOGame.items.EquipableItem;
 import GOGame.items.Item;
 import GOGame.items.ItemLine;
+import GOGame.items.UsableItem;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
@@ -20,6 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 abstract class SideButton {
+//    private final ItemDescriptionWindow parent;
     private CCTMessage text;
 
     public CCTMessage getText() {
@@ -28,9 +31,10 @@ abstract class SideButton {
 
     public SideButton(String text) {
         this.text = new CCTMessage(text);
+//        this.parent = parent;
     }
 
-    public abstract void press() throws IOException;
+    public abstract void press() throws IOException, SpellException;
 
     public void draw(Terminal terminal, int x, int y, boolean reverseColor) {
         this.text.draw(terminal, x, y, reverseColor);
@@ -41,6 +45,7 @@ public class ItemDescriptionWindow extends TWindow {
     private static final int MAX_DESCRIPTION_WIDTH = 60;
     private static final String BORDER_COLOR = "cyan";
     private final Item item;
+    private final InventoryWindow inventoryWindow;
     private Engine game;
 
     public Item getItem() {
@@ -52,7 +57,18 @@ public class ItemDescriptionWindow extends TWindow {
     private int buttonI = 0;
     private final String descriptionLines[];
 
-    private final Map<String, SideButton> SIDE_BUTTON_MAP = new HashMap<>(){{
+    private final Map<String, SideButton> sideButtonMap = new HashMap<>(){{
+        put("use", new SideButton("Use") {
+            @Override
+            public void press() throws IOException, SpellException {
+                var uItem = (UsableItem)item;
+                var used = uItem.use(game);
+                if (!used) return;
+                close();
+                inventoryWindow.close();
+//                TODO REMOVE ITEM FROM INVENTORY DISPLAY
+            }
+        });
         put("equip", new SideButton("Equip") {
             @Override
             public void press() throws IOException {
@@ -118,9 +134,10 @@ public class ItemDescriptionWindow extends TWindow {
         });
     }};
 
-    public ItemDescriptionWindow(Terminal terminal, TextGraphics g, Engine game, ItemLine line) {
+    public ItemDescriptionWindow(Terminal terminal, TextGraphics g, InventoryWindow parent, Engine game, ItemLine line) {
         super(terminal, g, 0, 0, 2, 3);
         this.item = line.getItem();
+        this.inventoryWindow = parent;
         this.game = game;
         this.setTitle("${cyan}" + item.getDisplayName());
         this.setBorderColor(BORDER_COLOR);
@@ -130,8 +147,8 @@ public class ItemDescriptionWindow extends TWindow {
         this.sideButtons = new SideButton[size];
         for (int i = 0; i < size; i++) {
             var action = actions.get(i);
-            if (!SIDE_BUTTON_MAP.containsKey(action)) throw new RuntimeException("unknown item action: " + action);
-            this.sideButtons[i] = SIDE_BUTTON_MAP.get(action);
+            if (!sideButtonMap.containsKey(action)) throw new RuntimeException("unknown item action: " + action);
+            this.sideButtons[i] = sideButtonMap.get(action);
         }
         var maxLength = -1;
         for (var b : sideButtons) {
@@ -170,7 +187,7 @@ public class ItemDescriptionWindow extends TWindow {
         put(KeyType.Enter, () -> {
             try {
                 sideButtons[buttonI].press( );
-            } catch (IOException e) {
+            } catch (IOException | SpellException e) {
                 throw new RuntimeException(e);
             }
         });

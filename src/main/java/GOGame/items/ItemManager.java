@@ -14,6 +14,8 @@ public class ItemManager {
     private WeaponLoadInfo weapons;
     @JsonProperty("armor")
     private ArmorItem[] armorItems;
+    @JsonProperty("incantation_books")
+    private IncantationBook[] incantationBooks;
 
     private final List<Item> items = new ArrayList<>();
 
@@ -25,6 +27,7 @@ public class ItemManager {
         items.addAll(List.of(basicItems));
         items.addAll(List.of(ammoItems));
         items.addAll(List.of(armorItems));
+        items.addAll(List.of(incantationBooks));
         items.addAll(weapons.getItems());
     }
 

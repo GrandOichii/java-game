@@ -178,6 +178,7 @@ public class Engine {
         if (tile.hasStepScript()) {
             tile.getSS().exec();
         }
+        player.update();
     }
 
     public boolean movePlayer(String direction) throws ScriptException {

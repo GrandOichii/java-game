@@ -7,7 +7,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class TerminalUtility {
+public abstract class TerminalUtility {
     static final String DEFAULT_BG_COLOR = "black";
     static final String DEFAULT_FG_COLOR = "white";
     static final HashMap<String, TextColor> COLOR_MAP = new HashMap<>() {{
@@ -84,6 +84,32 @@ public class TerminalUtility {
         try {
             t.setBackgroundColor(COLOR_MAP.get(DEFAULT_BG_COLOR));
             t.setForegroundColor(COLOR_MAP.get(DEFAULT_FG_COLOR));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void drawBar(Terminal t, int x, int y, int width, int value, int maxValue, String color, boolean drawValues) {
+        String base = "[" + " ".repeat(width - 2) + "]";
+        putAt(t, x, y, base);
+        x += 1;
+        var count = value * (width - 2) / maxValue;
+        var pair = parseColor(color);
+        try {
+            t.setForegroundColor(pair.getSecond());
+            t.setBackgroundColor(pair.getFirst());
+            putAt(t, x, y, " ".repeat(count));
+            if (drawValues) {
+                resetColors(t);
+                x += base.length();
+                base = "(   /   )";
+                putAt(t, x, y, base);
+                t.setForegroundColor(pair.getFirst());
+                t.setBackgroundColor(pair.getSecond());
+                putAt(t, x+1, y, String.valueOf(value));
+                putAt(t, x+5, y, String.valueOf(maxValue));
+            }
+            resetColors(t);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

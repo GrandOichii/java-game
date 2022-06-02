@@ -14,11 +14,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+@FunctionalInterface
+interface Getter {
+    public Object get();
+}
+
 public class ScriptOverseer {
     private final HashMap<String, Script> macros;
     private final HashMap<String, Object> vars;
     private final HashMap<String, Object> immutableVars;
     private final HashMap<String, Function> funcMap;
+    private final HashMap<String, Getter> getters;
     private Engine e;
 
     private static final String MESSAGE_BOX_RESULT_NAME = "_mbresult";
@@ -46,18 +52,23 @@ public class ScriptOverseer {
     }
 
     public void injectPlayerData(Player player) {
-        var attributes = player.getAttributes();
-        for (var attribute : Attribute.values()) {
-            immutableVars.put("player." + attribute, attributes.getBase(attribute));
-        }
         immutableVars.put("player.name", player.getName());
         immutableVars.put("player.class_name", player.getClassName());
+        getters.put("player.c_health", player::getHealth);
+        getters.put("player.m_health", player::getMaxHealth);
+        getters.put("player.c_mana", player::getMana);
+        getters.put("player.m_mana", player::getMaxMana);
+        var attributes = player.getAttributes();
+        for (var attribute : Attribute.values()) {
+            getters.put("player." + attribute, () -> attributes.getBase(attribute));
+        }
     }
 
     public ScriptOverseer(Engine engine) {
         this.e = engine;
         this.macros = new HashMap<>();
         this.vars = new HashMap<>();
+        this.getters = new HashMap<>();
         var so = this;
         var ifEvaluators = new HashMap<String, EvaluatorFunc>() {{
 //            set evaluation
@@ -368,6 +379,10 @@ public class ScriptOverseer {
 //            check if is an immutable variable
             if (this.immutableVars.containsKey(s)) {
                 return copyOf(this.immutableVars.get(s));
+            }
+//            check if is a getter
+            if (this.getters.containsKey(s)) {
+                return copyOf(this.getters.get(s).get());
             }
         }
         throw new ScriptException("don't know what " + arg + " is");

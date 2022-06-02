@@ -2,16 +2,26 @@ package GOGame.player;
 
 import GOGame.Engine;
 import GOGame.Pair;
+import GOGame.entities.Entity;
 import GOGame.items.*;
+import GOGame.spells.*;
 
 import java.util.*;
 
-public class Player {
+public class Player extends Entity {
     private final String name;
     private final Engine engine;
     private String className;
     private final Inventory inventory;
     private final AttributeManager attributes;
+
+    private final Set<TargetIncantation> knownSpellTargets = new HashSet<>();
+    private final Set<TypeIncantation> knownSpellTypes = new HashSet<>();
+    private final Set<IntensityIncantation> knownSpellIntensities = new HashSet<>();
+
+    public void learn(TargetIncantation t) { knownSpellTargets.add(t); }
+    public void learn(TypeIncantation t) { knownSpellTypes.add(t); }
+    public void learn(IntensityIncantation t) { knownSpellIntensities.add(t); }
 
     public AttributeManager getAttributes() {
         return attributes;
@@ -25,18 +35,28 @@ public class Player {
         inventory.takeItem(itemName);
     }
 
-
     public void addItemsFromContainer(Container container) {
         inventory.addItemsFromContainer(container);
     }
 
     public Player(Engine engine, String name, PlayerClass pClass) {
         this.name = name;
+        this.maxHealth = 10;
+        this.curHealth = this.maxHealth;
+        this.maxMana = 100;
+        this.curMana = this.maxMana;
         this.inventory = new Inventory(engine);
         this.attributes = new AttributeManager();
         this.engine = engine;
 
         this.injectClassData(engine, pClass);
+    }
+
+    private static final int MANA_REGEN = 5;
+
+    public void update() {
+        curMana += MANA_REGEN;
+        if (curMana > maxMana) curMana = maxMana;
     }
 
     private void injectClassData(Engine engine, PlayerClass pClass) {
@@ -148,4 +168,29 @@ public class Player {
         engine.updatePlayerLook();
     }
 
+    public void castSpell(Spell spell) {
+//        check if player can cast the spell
+        var map = new HashMap<Incantation, Set>(){{
+            put(spell.getTargetIncantation(), knownSpellTargets);
+            put(spell.getTypeIncantation(), knownSpellTypes);
+            put(spell.getSpellIntensity(), knownSpellIntensities);
+        }};
+        for (var incantation : map.keySet()) {
+            var arr = map.get(incantation);
+            if (!arr.contains(incantation)) {
+                engine.addToLog("Can't cast spell: don't know incantation " + incantation.getTitle());
+                return;
+            }
+        }
+        var cost = spell.getCost();
+        if (this.curMana < cost) {
+            engine.addToLog(String.format("Failed to cast spell, not enough mana (requires: %d)", cost));
+            return;
+        }
+
+//        cast the actual spell
+        this.curMana -= cost;
+//        pick target
+        spell.cast();
+    }
 }

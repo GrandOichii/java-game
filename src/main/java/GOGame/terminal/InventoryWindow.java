@@ -14,7 +14,6 @@ import com.googlecode.lanterna.terminal.Terminal;
 import java.io.IOException;
 import java.util.*;
 
-
 abstract class Menu {
     private final CCTMessage title;
     protected final TWindow parent;
@@ -30,6 +29,19 @@ abstract class Menu {
 
     abstract void handleInput(KeyStroke key);
 }
+
+//class MenuItemLine implements IDrawableAsLine {
+//    private final ItemLine itemLine;
+//
+//    public MenuItemLine(ItemLine itemLine) {
+//        this.itemLine = itemLine;
+//    }
+//
+//    @Override
+//    public void drawLine(Terminal terminal, int x, int y, boolean reverseColor) {
+//
+//    }
+//}
 
 class ItemsSubMenu extends Menu {
     private Engine game;
@@ -60,7 +72,7 @@ class ItemsSubMenu extends Menu {
             var i = itemList.getChoice();
             var line = itemNames[i];
             try {
-                new ItemDescriptionWindow(parent.terminal, parent.g, game, line).show();
+                new ItemDescriptionWindow(parent.terminal, parent.g, (InventoryWindow) parent, game, line).show();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -192,7 +204,6 @@ class EquipmentMenu extends Menu {
         keyMap.get(kt).run();
     }
 }
-
 
 public class InventoryWindow extends TWindow {
     private static final int WINDOW_WIDTH = 60;

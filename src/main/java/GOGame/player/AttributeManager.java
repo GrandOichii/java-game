@@ -11,6 +11,10 @@ public class AttributeManager {
         }
     }};
 
+    public String[] getAttributeNames() {
+        return (String[]) baseValues.keySet().stream().map(Enum::name).toArray();
+    }
+
     public int getBase(Attribute name) { return baseValues.get(name); }
 
     public void setBase(HashMap<Attribute, Integer> attributeMap) {

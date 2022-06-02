@@ -3,8 +3,10 @@ package GOGame.terminal;
 import GOGame.Engine;
 import GOGame.IGameWindow;
 import GOGame.exceptions.ScriptException;
+import GOGame.exceptions.SpellException;
 import GOGame.map.WTile;
 import GOGame.scripting.Script;
+import GOGame.spells.Spell;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
@@ -27,9 +29,7 @@ import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
 
 public class TerminalWindow implements IGameWindow {
@@ -193,7 +193,6 @@ public class TerminalWindow implements IGameWindow {
             if (item != null) {
                 second = item.getDisplayName();
             }
-            System.out.println(key + " -- " + second);
         }
     }
 
@@ -387,6 +386,7 @@ public class TerminalWindow implements IGameWindow {
     private static final String OPEN_INVENTORY_KEY = "i";
     private static final String INTERACT_KEY = "e";
     private static final String COMMANDS_KEY = "~";
+    private static final String CAST_SPELL_KEY = "c";
 
     private boolean handleInput(KeyStroke key) throws ScriptException, IOException {
         var k = stringKey(key);
@@ -408,6 +408,9 @@ public class TerminalWindow implements IGameWindow {
             case COMMANDS_KEY:
                 this.enterConsoleCommandMode();
                 return false;
+            case CAST_SPELL_KEY:
+                var cast = this.castMode();
+                return cast;
             case "q":
 //                quit (DEBUG)
                 gameRunning = false;
@@ -416,8 +419,44 @@ public class TerminalWindow implements IGameWindow {
         return false;
     }
 
-    private void enterConsoleCommandMode() {
-        final var allowedCharacters = new String[]{"_", " ", "."};
+    private boolean castMode() throws IOException {
+        var x = 1;
+        var y = tileWindowHeight;
+        var label = "Enter the spell: ";
+        TerminalUtility.putAt(terminal, x, y, label, "cyan");
+        x += label.length();
+        var edit = new LineEdit("", tileWindowWidth - label.length() - 2);
+        while (true) {
+            edit.draw(terminal, x, y);
+            terminal.flush();
+            var key = terminal.readInput();
+            if (key.getKeyType() == KeyType.Escape) return false;
+            if (key.getKeyType() == KeyType.Enter) break;
+            edit.handleInput(key);
+        }
+        var line = edit.getText();
+        try {
+            var spell = new Spell(line, game);
+            game.getPlayer().castSpell(spell);
+            return true;
+        } catch (SpellException e) {
+            e.printStackTrace();
+            game.addToLog(String.format("You say %s, but nothing happens.", line));
+        }
+        return false;
+//        var edit = new LineEdit("", 20);
+//        if (line.startsWith("$")) {
+//            try {
+//                var spell = new Spell(line.substring(1));
+//                System.out.println(spell);
+//            } catch (SpellException e) {
+//                throw new RuntimeException(e);
+//            }
+//            continue;
+//        }
+    }
+
+    private void enterConsoleCommandMode() throws IOException {
         final int wHeight = infoWindowHeight / 2;
         final int wWidth = infoWindowWidth;
         final var y = wHeight + 1;
@@ -425,9 +464,10 @@ public class TerminalWindow implements IGameWindow {
         final var commandY = infoWindowHeight - 2;
         final var commandX = x + 3;
 
-        var line = new ArrayList<String>();
-        int cursor = 0;
+//        var line = new ArrayList<String>();
+//        int cursor = 0;
         final int maxLength = wWidth * 2 - 5;
+        var edit = new LineEdit("", maxLength);
         final var prevLines = new ArrayList<String>();
         final var maxPrevSize = wHeight - 3;
 
@@ -436,12 +476,7 @@ public class TerminalWindow implements IGameWindow {
             graphics.drawRectangle(new TerminalPosition(x, y), new TerminalSize(wWidth * 2, wHeight), '*');
             TerminalUtility.putAt(terminal, x + 1, y, "Command window y:" + game.getMap().getPlayerY() + " x: " + game.getMap().getPlayerX(), "red");
             TerminalUtility.putAt(terminal, commandX - 2, commandY, "> ", "cyan");
-            terminal.enableSGR(SGR.UNDERLINE);
-            terminal.setCursorPosition(commandX, commandY);
-            terminal.putString(" ".repeat(maxLength));
-            TerminalUtility.putAt(terminal, commandX, commandY, String.join("", line));
-            terminal.disableSGR(SGR.UNDERLINE);
-            TerminalUtility.putAt(terminal, commandX + cursor, commandY, " ", "white-cyan");
+            edit.draw(terminal, commandX, commandY);
             var size = prevLines.size();
             for (int i = 0; i < maxPrevSize; i++) {
                 if (i >= size) {
@@ -453,39 +488,10 @@ public class TerminalWindow implements IGameWindow {
             terminal.flush();
 //            handle input
             var key = this.terminal.readInput();
-//            check if escape
-            if (key.getKeyType() == KeyType.Escape) {
-                break;
-            }
-//            check if arrow keys
-            if (key.getKeyType() == KeyType.ArrowLeft) {
-                cursor--;
-                if (cursor < 0) {
-                    cursor = 0;
-                }
-                continue;
-            }
-            if (key.getKeyType() == KeyType.ArrowRight) {
-                cursor++;
-                if (cursor > line.size()) {
-                    cursor = line.size();
-                }
-                continue;
-            }
-//            check if backspace
-            if (key.getKeyType() == KeyType.Backspace) {
-                if (cursor == 0) {
-                    continue;
-                }
-                line.remove(cursor-1);
-                cursor--;
-                continue;
-            }
-//            check if ENTER
             if (key.getKeyType() == KeyType.Enter) {
-                var l = String.join("", line);
+                var line = edit.getText();
                 try {
-                    new Script(l, game.getSO()).exec();
+                    new Script(line, game.getSO()).exec();
                 } catch (Exception e) {
                     TerminalUtility.putAt(terminal, commandX-2, commandY+1, "Failed to execute line", "white-red");
                     terminal.flush();
@@ -493,22 +499,16 @@ public class TerminalWindow implements IGameWindow {
                     continue;
                 }
 //                executed the command
-                cursor = 0;
                 prevLines.add(String.join("", line));
-                line = new ArrayList<>();
+                edit.setText("");
                 this.draw();
                 continue;
             }
-//            check if is character key
-            if (key.getKeyType() == KeyType.Character) {
-                if (line.size() == maxLength) {
-                    continue;
-                }
-                var ch = key.getCharacter().toString();
-                line.add(cursor, ch);
-                cursor++;
-                continue;
+//            check if escape
+            if (key.getKeyType() == KeyType.Escape) {
+                break;
             }
+            edit.handleInput(key);
         }
     }
 
@@ -525,6 +525,8 @@ public class TerminalWindow implements IGameWindow {
         this.drawPlayer();
     }
 
+    private static final int BAR_WIDTH = 13 + 2;
+
     private void drawInfoWindow() {
         var y = TILE_WINDOW_OFFSET_Y - 1;
         var x = 2 * tileWindowWidth + 2;
@@ -536,6 +538,21 @@ public class TerminalWindow implements IGameWindow {
         TerminalUtility.putAt(terminal, x + 10, y + 2, game.getPlayer().getName(), "green");
         PLAYER_CLASS_LABEL.draw(terminal, x + 3, y + 3);
         TerminalUtility.putAt(terminal, x + 10, y + 3, game.getPlayer().getClassName(), "cyan");
+        y += 4;
+        var player = game.getPlayer();
+//        draw health bar
+        var tX = x + 2;
+        var line = "Health: ";
+        TerminalUtility.putAt(terminal, tX, y, line);
+        tX += line.length();
+        TerminalUtility.drawBar(terminal, tX, y, BAR_WIDTH, player.getHealth(), player.getMaxHealth(), "red", true);
+//        draw mana
+        y += 1;
+        tX = x + 2;
+        line = "Mana:   ";
+        TerminalUtility.putAt(terminal, tX, y, line);
+        tX += line.length();
+        TerminalUtility.drawBar(terminal, tX, y, BAR_WIDTH, player.getMana(), player.getMaxMana(), "blue", true);
     }
 
     private void drawPlayer() {

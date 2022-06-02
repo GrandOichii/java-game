@@ -1,5 +1,21 @@
 [
     {
+        "name": "Mage",
+        "description": "A mage.",
+        "attributes": {
+            "VIT": 10,
+            "STR": 10,
+            "AGI": 10,
+            "INT": 15,
+            "WIS": 15,
+            "LUC": 12
+        },
+        "items": {
+            "wooden_stick": 1,
+            "mega_book": 1
+        }
+    },
+    {
         "name": "Warrior",
         "description": "A warrior.",
         "attributes": {
@@ -14,22 +30,7 @@
             "broadsword": 1,
             "iron_helmet": 1,
             "iron_cuirass": 1,
-            "iron_leggins": 1
-        }
-    },
-    {
-        "name": "Mage",
-        "description": "A mage.",
-        "attributes": {
-            "VIT": 10,
-            "STR": 10,
-            "AGI": 10,
-            "INT": 15,
-            "WIS": 15,
-            "LUC": 12
-        },
-        "items": {
-            "wooden_stick": 1
+            "iron_leggings": 1
         }
     },
     {
