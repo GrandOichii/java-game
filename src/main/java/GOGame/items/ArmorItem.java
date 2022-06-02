@@ -15,4 +15,9 @@ public class ArmorItem extends EquipableItem{
     protected String additionalDescriptionInfo() {
         return super.additionalDescriptionInfo() + String.format("Armor rating: %d\n\n", armorRating);
     }
+
+    @Override
+    public String getExtendedDisplayName() {
+        return String.format("%s (%d)", displayName, armorRating);
+    }
 }

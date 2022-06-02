@@ -63,12 +63,18 @@ public class Player {
         this.inventory.addItem(item);
     }
 
+    public static final String[] ORDERED_LIMBS = new String[]{
+            "ARM1",
+            "ARM2",
+            "HEAD",
+            "TORSO",
+            "LEGS"
+    };
+
     private final Map<String, EquipableItem> limbMap = new HashMap<>(){{
-        put("ARM1", null);
-        put("ARM2", null);
-        put("HEAD", null);
-        put("TORSO", null);
-        put("LEGS", null);
+        for (var limb : ORDERED_LIMBS) {
+            put(limb, null);
+        }
     }};
 
     public Map<String, EquipableItem> getEquipmentMap() {

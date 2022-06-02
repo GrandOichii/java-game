@@ -1,8 +1,11 @@
 package GOGame.terminal;
 
 import GOGame.Engine;
+import GOGame.items.EquipSlot;
+import GOGame.items.EquipableItem;
 import GOGame.items.ItemLine;
 import GOGame.items.SortedItemLines;
+import GOGame.player.Player;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
@@ -139,11 +142,57 @@ class ItemsMenu extends Menu {
         }
         this.menus[menuI].handleInput(key);
     }
+}
 
-    public ItemsSubMenu getSelectedSubMenu() {
-        return this.menus[menuI];
+class EquipmentMenu extends Menu {
+    private int limbI = 0;
+    private Player player;
+
+    public EquipmentMenu(TWindow parent, Engine game) {
+        super(parent, "Equipment");
+        this.player = game.getPlayer();
+    }
+
+    @Override
+    void draw() {
+        var equipment = player.getEquipmentMap();
+        var i = 0;
+        var y = parent.y + 3;
+        var x = parent.x + 3;
+        for (var limb : Player.ORDERED_LIMBS) {
+            TerminalUtility.putAt(parent.terminal, x, y + i, "- " + limb);
+            var itemName = "none";
+            var item = equipment.get(limb);
+            if (item != null) {
+                itemName = item.getExtendedDisplayName();
+                if (item.getSlot().equals(EquipSlot.ARMS)) itemName += " (ARMS)";
+            }
+            TerminalUtility.putAt(parent.terminal, x + 9, y + i, itemName, i / 2 == limbI ? "black-cyan" : "cyan-black");
+            i += 2;
+        }
+    }
+
+    private final Map<KeyType, Runnable> keyMap = new EnumMap<>(KeyType.class){{
+        put(KeyType.ArrowDown, () -> {
+            var size = player.getEquipmentMap().size();
+            limbI++;
+            if (limbI >= size) limbI = 0;
+        });
+        put(KeyType.ArrowUp, () -> {
+            var size = player.getEquipmentMap().size();
+            limbI--;
+            if (limbI < 0) limbI = size - 1;
+        });
+    }};
+
+    @Override
+    void handleInput(KeyStroke key) {
+        var kt = key.getKeyType();
+        if (!keyMap.containsKey(kt)) return;
+        keyMap.get(kt).run();
     }
 }
+
 
 public class InventoryWindow extends TWindow {
     private static final int WINDOW_WIDTH = 60;
@@ -160,12 +209,18 @@ public class InventoryWindow extends TWindow {
         var items = game.getPlayer().getInventory().getAsPrettyList();
 
         menus = new Menu[]{
-            new ItemsMenu(this, items, game)
+            new ItemsMenu(this, items, game),
+            new EquipmentMenu(this, game)
         };
     }
 
     public Set<String> getViewedItemNames() {
-        return ((ItemsMenu)this.menus[menuI]).getViewedItemNames();
+        for (var menu : this.menus) {
+            if (menu instanceof ItemsMenu) {
+                return ((ItemsMenu) menu).getViewedItemNames();
+            }
+        }
+        throw new RuntimeException("can't find items menu");
     }
 
     @Override

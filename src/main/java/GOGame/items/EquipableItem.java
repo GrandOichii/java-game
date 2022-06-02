@@ -22,6 +22,8 @@ public abstract class EquipableItem extends Item {
         super(false);
     }
 
+    public abstract String getExtendedDisplayName();
+
     @Override
     protected String additionalDescriptionInfo() {
         StringBuilder result = new StringBuilder("Requirements:\n");

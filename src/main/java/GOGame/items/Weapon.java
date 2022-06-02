@@ -27,4 +27,9 @@ public abstract class Weapon extends EquipableItem {
     protected String additionalDescriptionInfo() {
         return super.additionalDescriptionInfo() + String.format("Damage: %d-%d  Range:%d\n\n", minDamage, maxDamage, range);
     }
+
+    @Override
+    public String getExtendedDisplayName() {
+        return String.format("%s (%d - %d, %d)", displayName, minDamage, maxDamage, range);
+    }
 }
