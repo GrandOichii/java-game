@@ -212,7 +212,8 @@ ITEM_TYPES = [
     'melee weapon',
     'ranged weapon',
     'ammo',
-    'armor'
+    'armor',
+    'incantation book'
     # ADD ITEM TYPE HERE
 ]
 
@@ -234,21 +235,30 @@ DAMAGE_TYPES = [
     'PHYSICAL'
 ]
 
-ITEM_KEYS = ['name', 'displayName', 'description', 'damageType', 'minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot', 'armorRating']
-
+BASE_KEYS = ['name', 'displayName', 'description']
+INCANTATIONS = {
+    'targets': ['SELF', 'OTHER'],
+    'types': ['HEAL', 'FIRE'],
+    'intensities': ['LOW', 'MEDIUM', 'HIGH'],
+}
 # item_templates = json.loads(open('template-items.json', 'r').read())
 ITEM_TYPE_KEYS = {
     # 'basic': list(item_templates['basic'][0].keys()),
     # 'ammo': list(item_templates['ammo'][0].keys()),
     # 'melee weapon': list(item_templates['weapons']['melee'][0].keys()),
     # 'ranged weapon': list(item_templates['weapons']['ranged'][0].keys())
-    'basic': ['name', 'displayName', 'description'],
-    'ammo': ['name', 'displayName', 'description', 'ammoType', 'damageType', 'damage'],
-    'melee weapon': ['name', 'displayName', 'description', 'damageType', 'minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot'],
-    'ranged weapon': ['name', 'displayName', 'description', 'minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot', 'ammoType'],
-    'armor': ['name', 'displayName', 'description', 'armorRating', 'STR', 'AGI', 'INT', 'slot']
+    'basic': BASE_KEYS,
+    'ammo': BASE_KEYS + ['ammoType', 'damageType', 'damage'],
+    'melee weapon': BASE_KEYS + ['damageType', 'minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot'],
+    'ranged weapon': BASE_KEYS + ['minDamage', 'maxDamage', 'range', 'STR', 'AGI', 'INT', 'slot', 'ammoType'],
+    'armor': BASE_KEYS + ['armorRating', 'STR', 'AGI', 'INT', 'slot'],
+    'incantation book': BASE_KEYS + ['intRequirement'] + list(INCANTATIONS.keys())
     # ADD ITEM TYPE HERE
 }
+
+ITEM_KEYS = set()
+for l in ITEM_TYPE_KEYS.values():
+    ITEM_KEYS.update(l)
 
 REQUIREMENT_KEYS = [
     'STR',
@@ -260,7 +270,9 @@ NUMBER_KEYS = [
     'minDamage',
     'maxDamage',
     'damage',
-    'range'
+    'range',
+    'intRequirement'
+    # ADD ITEM TYPES HERE
 ]
 
 MAX_ARMOR_RATING = 20
@@ -269,25 +281,19 @@ class ItemData:
     def __init__(self):
         self.selected_type: str = ''
 
-        self.name: str = ''
-        self.ammoType: str = ''
-        self.displayName: str = ''
-        self.description: str = ''
-        self.damageType: str = ''
-        self.damage: int = 0
-        self.minDamage: int = 0
-        self.maxDamage: int = 0
-        self.armorRating: int = 0
-        self.range: int = 0
-        self.STR: int = 0
-        self.AGI: int = 0
-        self.INT: int = 0
-        self.slot: str = ''
-
+        for key in ITEM_KEYS:
+            self.__dict__[key] = ''
+            if key in NUMBER_KEYS or key in ATTRIBUTES:
+                self.__dict__[key] = 0
+        _=1
+        
     def load(itype: str, data: dict) -> 'ItemData':
         result = ItemData()
         keys = ITEM_TYPE_KEYS[itype]
         for key in keys:
+            if key in INCANTATIONS:
+                result.__dict__[key] = ' '.join(data[key])
+                continue
             if key in REQUIREMENT_KEYS:
                 if not key in data['requirements']:
                     continue
@@ -301,6 +307,9 @@ class ItemData:
         result = {}
         keys = ITEM_TYPE_KEYS[self.selected_type]
         for key in keys:
+            if key in INCANTATIONS:
+                result[key] = self.__dict__[key].split(' ')
+                continue
             if key in REQUIREMENT_KEYS:
                 if not 'requirements' in result:
                     result['requirements'] = {}
@@ -547,8 +556,10 @@ class GameObject:
             result.items += extract_items('basic', data['basic'])
             result.items += extract_items('armor', data['armor'])
             result.items += extract_items('ammo', data['ammo'])
+            result.items += extract_items('incantation book', data['incantationBooks'])
             result.items += extract_items('ranged weapon', data['weapons']['ranged'])
             result.items += extract_items('melee weapon', data['weapons']['melee'])
+            # ADD ITEM TYPES HERE
         # load the containers
         with open(os.path.join(path, CONTAINERS_FILE), 'r') as f:
             s = f.read()
@@ -638,6 +649,7 @@ class GameObject:
         with open(os.path.join(path_to_game, ITEMS_FILE), 'w') as f:
             # ADD ITEM TYPE HERE
             data = {}
+            data['incantationBooks'] = []
             data['basic'] = []
             data['ammo'] = []
             data['armor'] = []
@@ -647,8 +659,10 @@ class GameObject:
                 'ammo': data['ammo'],
                 'melee weapon': data['weapons']['melee'],
                 'ranged weapon': data['weapons']['ranged'],
-                'armor': data['armor']
+                'armor': data['armor'],
+                'incantation book': data['incantationBooks']
             }
+            # ADD ITEM TYPES HERE
             for item in self.items:
                 m[item.selected_type] += [item.to_json()]
             f.write(json.dumps(data, indent=4))

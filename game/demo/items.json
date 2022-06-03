@@ -1,31 +1,54 @@
 {
-    "incantation_books": [
+    "incantationBooks": [
         {
             "name": "book1",
             "displayName": "Simple incantation book",
             "description": "A simple spellbook. Great for starting mages.",
-            "targets": ["SELF"],
-            "intensities": ["LOW"],
-            "types": ["HEAL", "FIRE"],
-            "intRequirement": 15
+            "intRequirement": 15,
+            "targets": [
+                "SELF"
+            ],
+            "types": [
+                "HEAL",
+                "FIRE"
+            ],
+            "intensities": [
+                "LOW"
+            ]
         },
         {
             "name": "mega_book",
             "displayName": "Magicka maxima",
             "description": "A mega book of spells. Teaches reader all the spells that they will ever need.",
-            "targets": ["SELF", "OTHER"],
-            "intensities": ["LOW", "MEDIUM", "HIGH"],
-            "types": ["HEAL", "FIRE"],
-            "intRequirement": 10
+            "intRequirement": 10,
+            "targets": [
+                "SELF",
+                "OTHER"
+            ],
+            "types": [
+                "HEAL",
+                "FIRE"
+            ],
+            "intensities": [
+                "LOW",
+                "MEDIUM",
+                "HIGH"
+            ]
         },
         {
             "name": "book2",
             "displayName": "Quantum phisics book.",
             "description": "You can't read this book.",
-            "targets": [],
-            "types": [],
-            "intensities": [],
-            "intRequirement": 50
+            "intRequirement": 50,
+            "targets": [
+                ""
+            ],
+            "types": [
+                ""
+            ],
+            "intensities": [
+                ""
+            ]
         }
     ],
     "basic": [

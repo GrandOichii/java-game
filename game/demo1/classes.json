@@ -1,26 +1,51 @@
 [
     {
-        "name": "Warrior",
-        "description": "A warrior.",
-        "attributes": 10,
+        "name": "Mage",
+        "description": "A mage.",
+        "attributes": {
+            "VIT": 10,
+            "STR": 10,
+            "AGI": 10,
+            "INT": 15,
+            "WIS": 15,
+            "LUC": 12
+        },
         "items": {
-            "broadsword": 1
+            "wooden_stick": 1,
+            "mega_book": 1
         }
     },
     {
-        "name": "Mage",
-        "description": "A mage.",
-        "attributes": 12,
+        "name": "Warrior",
+        "description": "A warrior.",
+        "attributes": {
+            "VIT": 15,
+            "STR": 15,
+            "AGI": 12,
+            "INT": 10,
+            "WIS": 10,
+            "LUC": 10
+        },
         "items": {
-            "wooden_stick": 1
+            "broadsword": 1,
+            "iron_helmet": 1,
+            "iron_cuirass": 1,
+            "iron_leggings": 1
         }
     },
     {
         "name": "Rogue",
         "description": "A rogue.",
-        "attributes": 15,
+        "attributes": {
+            "VIT": 10,
+            "STR": 12,
+            "AGI": 15,
+            "INT": 10,
+            "WIS": 10,
+            "LUC": 15
+        },
         "items": {
-            "wooden_arrow": 30,
+            "wooden_arrow": 20,
             "wooden_bow": 1
         }
     }

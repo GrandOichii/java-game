@@ -23,7 +23,7 @@
         "displayName": "Chest",
         "passable": false,
         "transparent": true,
-        "interactScript": "scripts/chest2_interact.script"
+        "interactScript": "scripts/chest1_interact.script"
     },
     "4": {
         "name": "chest2",

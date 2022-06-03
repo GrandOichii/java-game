@@ -1,9 +1,48 @@
 {
+    "incantationBooks": [
+        {
+            "name": "book1",
+            "displayName": "Simple incantation book",
+            "description": "A simple spellbook. Great for starting mages.",
+            "targets": ["SELF"],
+            "intensities": ["LOW"],
+            "types": ["HEAL", "FIRE"],
+            "intRequirement": 15
+        },
+        {
+            "name": "mega_book",
+            "displayName": "Magicka maxima",
+            "description": "A mega book of spells. Teaches reader all the spells that they will ever need.",
+            "targets": ["SELF", "OTHER"],
+            "intensities": ["LOW", "MEDIUM", "HIGH"],
+            "types": ["HEAL", "FIRE"],
+            "intRequirement": 10
+        },
+        {
+            "name": "book2",
+            "displayName": "Quantum phisics book.",
+            "description": "You can't read this book.",
+            "targets": [],
+            "types": [],
+            "intensities": [],
+            "intRequirement": 50
+        }
+    ],
     "basic": [
         {
             "name": "rock",
             "displayName": "Rock",
-            "description": "A small rock. Can be found anywhere. Not much use"
+            "description": "A small rock. Can be found anywhere. Not much use."
+        },
+        {
+            "name": "door_key",
+            "displayName": "Key",
+            "description": "A simple key."
+        },
+        {
+            "name": "strange_bone",
+            "displayName": "Strange bone",
+            "description": "A strange looking bone. Definately did not come from a human."
         }
     ],
     "ammo": [
@@ -14,6 +53,44 @@
             "ammoType": "ARROW",
             "damageType": "PHYSICAL",
             "damage": 2
+        }
+    ],
+    "armor": [
+        {
+            "name": "iron_helmet",
+            "displayName": "Iron Helmet",
+            "description": "A standard iron helmet. Doesn't offer much protection.",
+            "armorRating": "3",
+            "requirements": {
+                "STR": 10,
+                "AGI": 10,
+                "INT": 0
+            },
+            "slot": "HEAD"
+        },
+        {
+            "name": "iron_cuirass",
+            "displayName": "Iron Cuirass",
+            "description": "A standard iron cuirass.",
+            "armorRating": "5",
+            "requirements": {
+                "STR": 12,
+                "AGI": 10,
+                "INT": 0
+            },
+            "slot": "TORSO"
+        },
+        {
+            "name": "iron_leggings",
+            "displayName": "Iron Leggings",
+            "description": "A standard pair of iron leggings.",
+            "armorRating": "4",
+            "requirements": {
+                "STR": 12,
+                "AGI": 10,
+                "INT": 0
+            },
+            "slot": "LEGS"
         }
     ],
     "weapons": {

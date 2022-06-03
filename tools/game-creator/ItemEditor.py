@@ -8,7 +8,7 @@ import util
 
 WINDOW_TITLE = 'Item Editor'
 
-LABEL_WIDTH = 120
+LABEL_WIDTH = 200
 ELEMENT_WIDTH = 200
 ELEMENT_HEIGHT = util.LABEL_HEIGHT
 LABEL_STYLE_SHEET = util.BORDER_1PX_BLACK_STYLE + util.PADDING_LEFT_1PX_STYLE
@@ -109,6 +109,7 @@ class ItemEditorWindow(QDialog):
             return result
 
         self.elements = {
+            # ADD ITEM TYPE HERE
             'name': {
                 'label': create_label('Name:'),
                 'element': create_line_edit()
@@ -161,6 +162,22 @@ class ItemEditorWindow(QDialog):
                 'label': create_label('INT requirement:'),
                 'element': create_number_edit(0, gsdk.MAX_ATTRIBUTE)
             },
+            'targets': {
+                'label': create_label('Target incantations:'),
+                'element': create_line_edit()
+            },
+            'types': {
+                'label': create_label('Type incantations:'),
+                'element': create_line_edit()
+            },
+            'intensities': {
+                'label': create_label('Intensity incantations:'),
+                'element': create_line_edit()
+            },
+            'intRequirement': {
+                'label': create_label('INT required for reading:'),
+                'element': create_number_edit(0, gsdk.MAX_ATTRIBUTE)
+            },
             'description': {
                 'label': create_label('Description: '),
                 'element': create_line_edit()
@@ -194,6 +211,7 @@ class ItemEditorWindow(QDialog):
         self.close()
 
     def save_action(self):
+        # check field validity
         name = self.elements['name']['element'].getText_()
         if self.parent_window.game.count_items_with_name(name) == 1:
             if self.item == None or self.item.name != name:
@@ -205,6 +223,14 @@ class ItemEditorWindow(QDialog):
             if self.elements[key]['element'].getText_() == '':
                 util.show_message_box('Enter item ' + key)
                 return
+        for incantation, values in gsdk.INCANTATIONS.items():
+            el = self.elements[incantation]['element']
+            split = el.getText_().split(' ')
+            for word in split:
+                if not word in values:
+                    util.show_message_box('Unknown incantation ' + word)
+                    return
+        # save the item
         self.item = gsdk.ItemData()
         self.item.selected_type = self.type_combo_box.currentText()
         for key in gsdk.ITEM_KEYS:

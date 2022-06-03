@@ -61,7 +61,7 @@ Player has the following equipment slots:
 . The player will meet the First Hero as a late-game boss, for he was driven with madness after venturing out into The Caves.
 . The second hero knew the First, thus he is aware of the mechanics of the world. He wasn't able to defeat any of the 4 bosses, this is why he refuses to fight any of the enemies, and only gathers resources, that he will happily sell to the player.
 . All enemies have an enemy code - that way the game remembers which enemies the player has killed. Upon resting at the main hub area the slice of cleared enemy codes is emptied.
-. Format for recipes: <item code>: [<item name>,]. Using it raw will be hard, so will have to right a pyqt app to generate items and their recipes.
+. Format for recipes: <item name>: [<item name>,]. Using it raw will be hard, so will have to right a pyqt app to generate items and their recipes.
 . An NPS will be standing and will ask the player if he wants to find a shortcut. He will ask for a fee. If the player doesn't pay the fee and stands near the button that activates the secret door, the NPC will attack him.
 . There will be a hard encounter in the castle. If the player dies, he will be locked up in a cell.
 . The hero that spawns before the player

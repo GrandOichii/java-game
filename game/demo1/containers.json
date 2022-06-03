@@ -2,5 +2,28 @@
     "chest1": {
         "wooden_bow": 1,
         "wooden_arrow": 10
+    },
+    "chest2": {
+        "broadsword": 1
+    },
+    "chest3": {
+        "rock": 10
+    },
+    "chest4": {
+        "rock": 5
+    },
+    "chest6": {
+        "rock": 33
+    },
+    "chest7": {
+        "rock": 12,
+        "strange_bone": 1
+    },
+    "chest8": {
+        "wooden_stick": 1,
+        "rock": 1
+    },
+    "chest5": {
+        "rock": 99
     }
 }

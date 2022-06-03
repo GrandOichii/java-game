@@ -1,8 +1,3 @@
-give_item {
-give __item_name
-log "You received an item from the gods."
-}
-
 open_wall1 {
 tset 18 19 index:floor
 tset 18 20 index:floor
@@ -30,25 +25,6 @@ spawned_macro {
 log "Welcome to the demo game"
 set spawned 1
 set opened_secret1 0
-set __item_name "rock"
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
-set __item_name "wooden_arrow"
-run give_item
-run give_item
-run give_item
-run give_item
-run give_item
 }
 
 read_sign {
