@@ -28,11 +28,9 @@ public class GameMap {
     private Room currentRoom;
 
     public GameMap() {
-//        TODO
     }
 
     public static GameMap load(String gamePath, File mapFile, ScriptOverseer so) throws Exception {
-//        TODO
         var md = MapData.load(gamePath, mapFile);
         var result = new GameMap();
         result.warpMap = new HashMap<>();

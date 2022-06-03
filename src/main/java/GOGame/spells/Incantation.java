@@ -1,9 +1,12 @@
 package GOGame.spells;
 
 import GOGame.Engine;
+import GOGame.IDescribable;
 import GOGame.entities.Entity;
 
-public abstract class Incantation {
+import java.util.List;
+
+public abstract class Incantation implements IDescribable {
     private final String title;
     private final String description;
     private final String actualTitle;
@@ -29,5 +32,16 @@ public abstract class Incantation {
     @Override
     public String toString() {
         return getActualTitle();
+    }
+
+
+    @Override
+    public String getBigDescription(int amount) {
+        return "Incantation: " + title + "\n\n" + description;
+    }
+
+    @Override
+    public List<String> getAllowedActions() {
+        return List.of("close");
     }
 }

@@ -43,4 +43,9 @@ public abstract class TargetIncantation extends Incantation {
         for (var t : TARGETS) if (t.getActualTitle().equals(title)) return t;
         throw new SpellException("don't know target incantation: " + title);
     }
+
+    @Override
+    public String getDisplayName() {
+        return "Target: " + getTitle();
+    }
 }

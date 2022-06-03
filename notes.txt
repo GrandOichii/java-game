@@ -68,5 +68,4 @@ Player has the following equipment slots:
 . Player has the option to enter the castle through the sewers
 
 - LATEST -
-ADDED: usable items, spells, incantation books, health and mana
-ADD: incantation books in game maker, incantation viewer
+ADDED: incantation viewer

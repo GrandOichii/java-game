@@ -78,4 +78,9 @@ public abstract class TypeIncantation extends Incantation {
     public void editSpell(Spell spell, Engine game) {
         setParent(spell);
     }
+
+    @Override
+    public String getDisplayName() {
+        return "Type: " + getTitle();
+    }
 }

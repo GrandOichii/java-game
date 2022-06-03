@@ -1,6 +1,7 @@
 package GOGame.terminal;
 
 import GOGame.Engine;
+import GOGame.IDescribable;
 import GOGame.Utility;
 import GOGame.exceptions.SpellException;
 import GOGame.items.EquipableItem;
@@ -41,14 +42,14 @@ abstract class SideButton {
     }
 }
 
-public class ItemDescriptionWindow extends TWindow {
+public class DescriptionWindow extends TWindow {
     private static final int MAX_DESCRIPTION_WIDTH = 60;
     private static final String BORDER_COLOR = "cyan";
-    private final Item item;
+    private final IDescribable item;
     private final InventoryWindow inventoryWindow;
     private Engine game;
 
-    public Item getItem() {
+    public IDescribable getItem() {
         return item;
     }
 
@@ -60,13 +61,12 @@ public class ItemDescriptionWindow extends TWindow {
     private final Map<String, SideButton> sideButtonMap = new HashMap<>(){{
         put("use", new SideButton("Use") {
             @Override
-            public void press() throws IOException, SpellException {
+            public void press() throws SpellException {
                 var uItem = (UsableItem)item;
                 var used = uItem.use(game);
                 if (!used) return;
                 close();
                 inventoryWindow.close();
-//                TODO REMOVE ITEM FROM INVENTORY DISPLAY
             }
         });
         put("equip", new SideButton("Equip") {
@@ -134,14 +134,14 @@ public class ItemDescriptionWindow extends TWindow {
         });
     }};
 
-    public ItemDescriptionWindow(Terminal terminal, TextGraphics g, InventoryWindow parent, Engine game, ItemLine line) {
+    public DescriptionWindow(Terminal terminal, TextGraphics g, InventoryWindow parent, Engine game, IDescribable item, int amount) {
         super(terminal, g, 0, 0, 2, 3);
-        this.item = line.getItem();
+        this.item = item;
         this.inventoryWindow = parent;
         this.game = game;
         this.setTitle("${cyan}" + item.getDisplayName());
         this.setBorderColor(BORDER_COLOR);
-        this.descriptionLines = Utility.StringWidthSplit(item.getBigDescription(line.getAmount()), MAX_DESCRIPTION_WIDTH);
+        this.descriptionLines = Utility.StringWidthSplit(item.getBigDescription(amount), MAX_DESCRIPTION_WIDTH);
         var actions = item.getAllowedActions();
         var size = actions.size();
         this.sideButtons = new SideButton[size];

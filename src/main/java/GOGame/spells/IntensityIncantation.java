@@ -39,4 +39,9 @@ public class IntensityIncantation extends Incantation {
         spell.factorAmount(factor);
         spell.factorCost(factor);
     }
+
+    @Override
+    public String getDisplayName() {
+        return "Intensity: " + getTitle();
+    }
 }

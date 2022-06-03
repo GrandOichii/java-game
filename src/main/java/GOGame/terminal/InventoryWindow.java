@@ -2,10 +2,10 @@ package GOGame.terminal;
 
 import GOGame.Engine;
 import GOGame.items.EquipSlot;
-import GOGame.items.EquipableItem;
 import GOGame.items.ItemLine;
 import GOGame.items.SortedItemLines;
 import GOGame.player.Player;
+import GOGame.spells.Incantation;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
@@ -72,7 +72,7 @@ class ItemsSubMenu extends Menu {
             var i = itemList.getChoice();
             var line = itemNames[i];
             try {
-                new ItemDescriptionWindow(parent.terminal, parent.g, (InventoryWindow) parent, game, line).show();
+                new DescriptionWindow(parent.terminal, parent.g, (InventoryWindow) parent, game, line.getItem(), line.getAmount()).show();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -205,6 +205,108 @@ class EquipmentMenu extends Menu {
     }
 }
 
+class IncantationSubMenu extends Menu {
+    private Engine game;
+    private Incantation[] incantations;
+    private ListTemplate list;
+
+    public IncantationSubMenu(TWindow parent, Engine game, String title, Set<? extends Incantation> incantations) {
+        super(parent, title);
+        this.game = game;
+        var lines = new ArrayList<IDrawableAsLine>();
+        var i = 0;
+        for (var incantation : incantations) {
+            lines.add(new CCTMessage(incantation.getTitle()));
+        }
+        this.incantations = incantations.toArray(new Incantation[0]);
+        list = new ListTemplate(lines, parent.getHeight() - 4);
+    }
+
+    @Override
+    void draw() {
+        list.draw(parent.terminal, parent.x + 2, parent.y + 3, true);
+    }
+
+    private final Map<KeyType, Runnable> keyMap = new EnumMap<>(KeyType.class){{
+        put(KeyType.ArrowUp, () -> list.moveUp());
+        put(KeyType.ArrowDown, () -> list.moveDown());
+        put(KeyType.Enter, () -> {
+//            rememberSelected();
+            var i = list.getChoice();
+            var incantation = incantations[i];
+            try {
+                new DescriptionWindow(parent.terminal, parent.g, (InventoryWindow) parent, game, incantation, 1).show();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }};
+
+    @Override
+    void handleInput(KeyStroke key) {
+        var kt = key.getKeyType();
+        if (!keyMap.containsKey(kt)) {
+            return;
+        }
+        keyMap.get(kt).run();
+    }
+}
+
+class IncantationsMenu extends Menu {
+
+    private int menuI = 0;
+    private IncantationSubMenu[] menus;
+
+    public IncantationsMenu(TWindow parent, Engine game) {
+        super(parent, "Incantations");
+        menus = new IncantationSubMenu[]{
+                new IncantationSubMenu(parent, game, "Targets", game.getPlayer().getKnownTargetIncantations()),
+                new IncantationSubMenu(parent, game, "Types", game.getPlayer().getKnownTypeIncantations()),
+                new IncantationSubMenu(parent, game, "Intensities", game.getPlayer().getKnownIntensityIncantations()),
+        };
+    }
+
+    void draw() {
+        var y = this.parent.y + 2;
+        var x = this.parent.x + 1;
+        parent.g.drawLine(x, y, x + this.parent.getWidth() - 3, y, '-');
+        for (int i = 0; i < menus.length; i++) {
+            var menuTitle = menus[i].getTitle();
+            var line = "-<" + "-".repeat(menuTitle.length()) + ">-";
+            TerminalUtility.putAt(parent.terminal, x, y, line);
+            menuTitle.draw(parent.terminal, x + 2, y, i == menuI);
+            x += line.length();
+        }
+        this.menus[menuI].draw();
+    }
+
+    private final Map<KeyType, Runnable> keyMap = new EnumMap<>(KeyType.class){{
+        put(KeyType.ArrowLeft, () -> {
+            menuI--;
+            if (menuI < 0) {
+                menuI = menus.length - 1;
+            }
+        });
+        put(KeyType.ArrowRight, () -> {
+            menuI++;
+            if (menuI >= menus.length) {
+                menuI = 0;
+            }
+        });
+    }};
+
+    @Override
+    void handleInput(KeyStroke key) {
+        var kt = key.getKeyType();
+        if (keyMap.containsKey(kt)) {
+            keyMap.get(kt).run();
+            return;
+        }
+        this.menus[menuI].handleInput(key);
+    }
+}
+
+
 public class InventoryWindow extends TWindow {
     private static final int WINDOW_WIDTH = 60;
     private static final int WINDOW_HEIGHT = 20;
@@ -221,7 +323,8 @@ public class InventoryWindow extends TWindow {
 
         menus = new Menu[]{
             new ItemsMenu(this, items, game),
-            new EquipmentMenu(this, game)
+            new EquipmentMenu(this, game),
+            new IncantationsMenu(this, game),
         };
     }
 
@@ -262,7 +365,7 @@ public class InventoryWindow extends TWindow {
         put(KeyType.ReverseTab, () -> {
             menuI--;
             if (menuI < 0) {
-                menuI = menus.length;
+                menuI = menus.length - 1;
             }
         });
     }};

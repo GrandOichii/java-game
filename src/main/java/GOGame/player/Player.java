@@ -15,13 +15,25 @@ public class Player extends Entity {
     private final Inventory inventory;
     private final AttributeManager attributes;
 
-    private final Set<TargetIncantation> knownSpellTargets = new HashSet<>();
-    private final Set<TypeIncantation> knownSpellTypes = new HashSet<>();
-    private final Set<IntensityIncantation> knownSpellIntensities = new HashSet<>();
+    private final Set<TargetIncantation> knownTargetIncantations = new HashSet<>();
+    private final Set<TypeIncantation> knownTypeIncantations = new HashSet<>();
+    private final Set<IntensityIncantation> knownIntensityIncantations = new HashSet<>();
 
-    public void learn(TargetIncantation t) { knownSpellTargets.add(t); }
-    public void learn(TypeIncantation t) { knownSpellTypes.add(t); }
-    public void learn(IntensityIncantation t) { knownSpellIntensities.add(t); }
+    public Set<IntensityIncantation> getKnownIntensityIncantations() {
+        return knownIntensityIncantations;
+    }
+
+    public Set<TargetIncantation> getKnownTargetIncantations() {
+        return knownTargetIncantations;
+    }
+
+    public Set<TypeIncantation> getKnownTypeIncantations() {
+        return knownTypeIncantations;
+    }
+
+    public void learn(TargetIncantation t) { knownTargetIncantations.add(t); }
+    public void learn(TypeIncantation t) { knownTypeIncantations.add(t); }
+    public void learn(IntensityIncantation t) { knownIntensityIncantations.add(t); }
 
     public AttributeManager getAttributes() {
         return attributes;
@@ -171,9 +183,9 @@ public class Player extends Entity {
     public void castSpell(Spell spell) {
 //        check if player can cast the spell
         var map = new HashMap<Incantation, Set>(){{
-            put(spell.getTargetIncantation(), knownSpellTargets);
-            put(spell.getTypeIncantation(), knownSpellTypes);
-            put(spell.getSpellIntensity(), knownSpellIntensities);
+            put(spell.getTargetIncantation(), knownTargetIncantations);
+            put(spell.getTypeIncantation(), knownTypeIncantations);
+            put(spell.getSpellIntensity(), knownIntensityIncantations);
         }};
         for (var incantation : map.keySet()) {
             var arr = map.get(incantation);

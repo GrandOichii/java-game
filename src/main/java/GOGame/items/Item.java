@@ -1,5 +1,6 @@
 package GOGame.items;
 
+import GOGame.IDescribable;
 import GOGame.Utility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -10,7 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Item {
+public abstract class Item implements IDescribable {
     private final boolean stackable;
 
     public boolean isStackable() {
